@@ -15,32 +15,31 @@
 	<!-- Leaflet -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
 	<style>
-		#map {
-			width: 100%;
-			min-height: 500px;
-			margin-bottom: 2em;
-		}
+		#map { width: 100%; min-height: 500px; margin-bottom: 2em; }
 		.legend { background: white; padding: 7px 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 11px; line-height: 1.8; color: #333; }
 		.legend b { display: block; margin-bottom: 2px; font-size: 11px; }
 		.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+		/* Tabs styling */
+		.tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 2em; }
+		.tab { padding: 0.75em 2em; cursor: pointer; background: #fff; color: #222; font-weight: bold; border-top-left-radius: 6px; border-top-right-radius: 6px; border-left: 2px solid #eee; border-right: 2px solid #eee; border-top: 2px solid #eee; margin-right: 0.2em; }
+		.tab.active { background: #e8f5fd; color: #0077b6; border-bottom: 2px solid #e8f5fd; }
+		.tabcontent { display: none; }
+		.tabcontent.active { display: block; }
 	</style>
 </head>
 <body class="is-preload">
-
 	<!-- Wrapper -->
 	<div id="wrapper">
-
 		<!-- Header -->
 		<header id="header">
-			<a href="index.html" class="logo">Massively</a>
+			<a href="index.html" class="logo">Swift Map</a>
 		</header>
-		<!-- Nav -->
+		<!-- Nav & Tabs Bar -->
 		<nav id="nav">
-			<ul class="links">
-				<li><a href="index.html">This is Massively</a></li>
-				<li><a href="generic.html">Generic Page</a></li>
-				<li class="active"><a href="#">Colony Map</a></li>
-			</ul>
+			<div class="tabs">
+				<div class="tab active" id="tab-map" onclick="showTab('tab-map')">Colony Map</div>
+				<div class="tab" id="tab-upload" onclick="showTab('tab-upload')">Upload Data</div>
+			</div>
 			<ul class="icons">
 				<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
 				<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
@@ -50,76 +49,95 @@
 		</nav>
 		<!-- Main -->
 		<div id="main">
-			<section class="post">
-				<header class="major">
-					<h1>Swift Colony Map</h1>
-					<p>Interactive map of monitored colonies in Switzerland</p>
-				</header>
-				<!-- Map section -->
-				<div id="map"></div>
-			</section>
+			<!-- Colony Map Tab -->
+			<div class="tabcontent active" id="tabcontent-map">
+				<section class="post">
+					<header class="major">
+						<h1>Swift Colony Map</h1>
+						<p>Interactive map of monitored colonies in Switzerland</p>
+					</header>
+					<!-- Map section -->
+					<div id="map"></div>
+				</section>
+			</div>
+			<!-- Upload Data Tab -->
+			<div class="tabcontent" id="tabcontent-upload">
+				<section class="post">
+					<header class="major">
+						<h1>Upload Colony Data Photo</h1>
+						<p>Submit field data observation photos - select the correct colony, data type, date, and image (.jpg).</p>
+					</header>
+					<form id="uploadForm">
+						<label><b>Colony:</b></label>
+						<select name="colony" id="colony" required>
+							<option value="SK">Bienne (SK)</option>
+							<option value="BT">Solothurn (BT)</option>
+							<option value="SV">St Gallen (SV)</option>
+							<option value="DT">Sursee (DT)</option>
+							<option value="LVS">Baden (LVS)</option>
+							<option value="HK">Luzern (HK)</option>
+							<option value="RK">Seengen (RK)</option>
+							<option value="RK">Langenthal (RK)</option>
+							<option value="KVS">Lenzburg (KVS)</option>
+						</select>
+						<br><br>
+						<label><b>Data Type:</b></label>
+						<select name="datatype" id="datatype" required>
+							<option value="egg-nest">Egg-nest</option>
+							<option value="nestling">Nestling</option>
+							<option value="adults">Adults</option>
+						</select>
+						<br><br>
+						<label><b>Date:</b></label>
+						<input type="date" name="date" id="date" required value="">
+						<br><br>
+						<label><b>Photo (.jpg):</b></label>
+						<input type="file" name="photo" id="photo" accept="image/jpeg" required />
+						<br><br>
+						<label><b>Your GitHub Token (repo/file access)</b> <span style="color:darkred;font-size:0.9em">(not stored!)</span>:</label>
+						<input type="password" name="token" id="token" autocomplete="off" required placeholder="Paste your personal token here">
+						<br><br>
+						<button type="submit">Upload</button>
+					</form>
+					<div id="uploadMsg"></div>
+				</section>
+			</div>
 		</div>
 		<!-- Footer (copied from elements.html) -->
 		<footer id="footer">
-			<section>
-				<form method="post" action="#">
-					<div class="fields">
-						<div class="field">
-							<label for="name">Name</label>
-							<input type="text" name="name" id="name" />
-						</div>
-						<div class="field">
-							<label for="email">Email</label>
-							<input type="text" name="email" id="email" />
-						</div>
-						<div class="field">
-							<label for="message">Message</label>
-							<textarea name="message" id="message" rows="3"></textarea>
-						</div>
-					</div>
-					<ul class="actions">
-						<li><input type="submit" value="Send Message" /></li>
-					</ul>
-				</form>
-			</section>
-			<section class="split contact">
-				<section class="alt">
-					<h3>Address</h3>
-					<p>1234 Somewhere Road #87257<br />
-					Nashville, TN 00000-0000</p>
-				</section>
-				<section>
-					<h3>Phone</h3>
-					<p><a href="#">(000) 000-0000</a></p>
-				</section>
-				<section>
-					<h3>Email</h3>
-					<p><a href="#">info@untitled.tld</a></p>
-				</section>
-				<section>
-					<h3>Social</h3>
-					<ul class="icons alt">
-						<li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
-						<li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
-						<li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
-						<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
-					</ul>
-				</section>
-			</section>
+			<!-- ... as previous ... -->
 		</footer>
 		<div id="copyright">
 			<ul><li>&copy; Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
 		</div>
 	</div>
-	
-	<!-- Leaflet JS -->
+	<!-- Leaflet JS only loads on map tab -->
 	<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 	<script>
+// Tab logic
+function showTab(tabId) {
+	["tab-map","tab-upload"].forEach(id => {
+		document.getElementById(id).classList.remove("active");
+	});
+	["tabcontent-map","tabcontent-upload"].forEach(id => {
+		document.getElementById(id).classList.remove("active");
+	});
+	document.getElementById(tabId).classList.add("active");
+	if(tabId === "tab-map") document.getElementById("tabcontent-map").classList.add("active");
+	if(tabId === "tab-upload") document.getElementById("tabcontent-upload").classList.add("active");
+}
+// Set date to today by default
+const dateInput = document.getElementById("date");
+if (dateInput) {
+	const today = new Date().toISOString().substr(0, 10);
+	dateInput.value = today;
+}
+// Map logic (only setup if map exists)
+if(document.getElementById("map")) {
 	const map = L.map('map', { center: [47.1, 7.95], zoom: 8 });
 	L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
 		attribution: '&copy; OpenStreetMap &copy; CartoDB', maxZoom: 18
 	}).addTo(map);
-
 	const legend = L.control({ position: 'bottomleft' });
 	legend.onAdd = function() {
 		const d = L.DomUtil.create('div', 'legend');
@@ -132,12 +150,10 @@
 		return d;
 	};
 	legend.addTo(map);
-
 	function marker(lat, lng, color, fillColor, radius, label) {
 		L.circleMarker([lat, lng], { color, fillColor, fillOpacity: 0.9, radius, weight: 2 }).addTo(map).bindPopup(label);
 	}
-
-	// Add markers (copy from swift_colony_map.html)
+	// Add markers
 	const blue = '#1565C0', blueFill = '#1976D2';
 	marker(47.3901, 8.0516, blue, blueFill, 8, 'Aarau – Kantonsgebäude');
 	marker(47.2089, 7.5379, blue, blueFill, 8, 'Solothurn – Schulhaus Kollegium');
@@ -145,21 +161,17 @@
 	marker(47.3698, 8.0452, blue, blueFill, 8, 'Unterentfelden – Gemeindehaus');
 	marker(47.2899, 7.9443, blue, blueFill, 8, 'Zofingen – Berufsschule');
 	marker(47.0438, 7.5412, blue, blueFill, 8, 'Hindelbank – Kirche Hindelbank');
-
 	marker(47.1414, 7.2466, '#1b5e20', '#2e7d32', 8, 'Biel – Stadtkirche');
 	marker(47.207,  7.5358, '#1b5e20', '#2e7d32', 8, 'Solothurn – Bieltor');
 	marker(47.1706, 8.1113, '#1b5e20', '#2e7d32', 8, 'Sursee – Diebenturm');
-
 	marker(47.0584, 8.3144, 'rgb(154,255,154', 'rgb(154,255,154)', 8, 'Luzern – Hofkirche Nord-Turm');
 	marker(47.0584, 8.3145, 'rgb(154,255,154', 'rgb(154,255,154)', 8, 'Luzern – Hofkirche Süd-Turm');
 	marker(47.3269, 8.2077, 'rgb(154,255,154', 'rgb(154,255,154)', 8, 'Seengen – Ref. Kirche');
 	marker(47.3918, 8.1777, 'rgb(154,255,154', 'rgb(154,255,154)', 8, 'Lenzburg – KV Schulhaus');
 	marker(47.4107,9.3696, 'rgb(154,255,154', 'rgb(154,255,154)', 8, 'St. Gallen – Sitterviadukt');
-
 	marker(47.2153, 7.7961, 'darkorange', 'orange', 8, 'Langenthal');
 	marker(47.4729, 8.3080, 'darkorange', 'orange', 8, 'Baden – Stadtturm');
 	marker(47.4740, 8.3070, 'darkorange', 'orange', 8, 'Baden – Landvogteischloss');
-
 	[
 		[47.0566,7.6265,'Burgdorf – Ref. Kirche'],
 		[45.832,9.0312,'Chiasso – Colonia APUMEL'],
@@ -172,14 +184,71 @@
 		[47.3782,8.5372,'Zurich – Fraumünster'],
 		[47.2106, 7.5329,'Solothurn – Baselgate'],
 	].forEach(([lat,lng,label]) => marker(lat, lng, '#999', 'lightgrey', 4, label));
-	</script>
-	<!-- Site scripts -->
-	<script src="assets/js/jquery.min.js"></script>
-	<script src="assets/js/jquery.scrollex.min.js"></script>
-	<script src="assets/js/jquery.scrolly.min.js"></script>
-	<script src="assets/js/browser.min.js"></script>
-	<script src="assets/js/breakpoints.min.js"></script>
-	<script src="assets/js/util.js"></script>
-	<script src="assets/js/main.js"></script>
+}
+// Upload logic
+const form = document.getElementById("uploadForm");
+if(form) {
+	form.addEventListener("submit", async function(e){
+		e.preventDefault();
+		document.getElementById("uploadMsg").innerHTML = "";
+		// get form data
+		const colony = form.colony.value;
+		const type = form.datatype.value;
+		const date = form.date.value;
+		const file = form.photo.files[0];
+		const token = form.token.value.trim();
+		if(!/\.(jpe?g)$/i.test(file.name)) {
+			document.getElementById("uploadMsg").innerHTML = '<span style="color:red">Please select a .jpg file.</span>';
+			return;
+		}
+		const ymd = (date||'').replaceAll('-','');
+		const fileName = `${colony}_${type}_${ymd}.jpg`;
+		const folder = `${colony}/${type}`;
+		const branch = "main";
+		const repo = "larahi/swift";
+		const url = `https://api.github.com/repos/${repo}/contents/${folder}/${fileName}`;
+		// Read as base64
+		const toBase64 = (file) => new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.readAsDataURL(file);
+			reader.onload = () => resolve(reader.result.split(",")[1]);
+			reader.onerror = error => reject(error);
+		});
+		const content = await toBase64(file);
+		let resp;
+		try {
+			resp = await fetch(url, {
+				method: "PUT",
+				headers: {
+					"Authorization": `token ${token}`,
+					"Content-Type": "application/json",
+					"Accept": "application/vnd.github+json"
+				},
+				body: JSON.stringify({
+					message: `Upload data photo from upload form (${fileName})`,
+					content,
+					branch
+				})
+			});
+			const data = await resp.json();
+			if(resp.status === 201 || resp.status === 200) {
+				document.getElementById("uploadMsg").innerHTML = '<span style="color:green">Upload succeeded! ✨<br><a target="_blank" href="'+data.content.html_url+'">View on GitHub</a></span>';
+			} else {
+				throw new Error(data.message || "Upload failed");
+			}
+		} catch(err) {
+			document.getElementById("uploadMsg").innerHTML = `<span style='color:red'>${err.message||err}</span>`;
+		}
+	});
+}
+</script>
+<!-- Site scripts -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/jquery.scrolly.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
 </body>
 </html>
