@@ -21,7 +21,7 @@
 		.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
 		/* Tabs styling */
 		.tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 2em; }
-		.tab { padding: 0.75em 2em; cursor: pointer; background: #fff; color: #222; font-weight: bold; border-top-left-radius: 6px; border-top-right-radius: 6px; border-left: 2px solid #eee; border-right: 2px solid #eee; border-top: 2px solid #eee; margin-right: 0.2em; }
+		.tab { padding: 0.75em 2em; cursor: pointer; background: #fff; color: #222; font-weight: bold; border-top-left-radius: 6px; border-top-right-radius: 6px; border-left: 2px solid #eee; border-right: 2px solid #eee; }
 		.tab.active { background: #e8f5fd; color: #0077b6; border-bottom: 2px solid #e8f5fd; }
 		.tabcontent { display: none; }
 		.tabcontent.active { display: block; }
@@ -67,6 +67,13 @@
 						<h1>Upload Colony Data Photo</h1>
 						<p>Submit field data observation photos - select the correct colony, data type, date, and image (.jpg).</p>
 					</header>
+					<div style="background:#e9f4ff;margin-bottom:.8em;padding:1em 1.2em;border-radius:6px;border:1px solid #bde;max-width:475px">
+						<b>How to upload:</b><br>
+						1. <b>Enter your GitHub Personal Access Token.</b> <a href="https://github.com/settings/tokens/new" target="_blank">Create one here</a>.<br>
+						- You only need <span style="color:#1565c0">repo / contents: write</span> permission.<br>
+						- <span style="color:#d22">Never share your token with others.</span> Use only for your uploads.<br>
+						2. Fill out the rest and select your .jpg file.<br>
+					</div>
 					<form id="uploadForm">
 						<label><b>Colony:</b></label>
 						<select name="colony" id="colony" required>
@@ -94,8 +101,8 @@
 						<label><b>Photo (.jpg):</b></label>
 						<input type="file" name="photo" id="photo" accept="image/jpeg" required />
 						<br><br>
-						<label><b>Your GitHub Token (repo/file access)</b> <span style="color:darkred;font-size:0.9em">(not stored!)</span>:</label>
-						<input type="password" name="token" id="token" autocomplete="off" required placeholder="Paste your personal token here">
+						<label><b>GitHub Token</b> (for file access):</label>
+						<input type="password" name="token" id="token" autocomplete="off" required placeholder="Paste your token here">
 						<br><br>
 						<button type="submit">Upload</button>
 					</form>
@@ -114,6 +121,35 @@
 	<!-- Leaflet JS only loads on map tab -->
 	<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 	<script>
+// Password protection overlay
+const SITE_PASSWORD = "swifty";
+function showLoginPrompt() {
+  const overlay = document.createElement("div");
+  Object.assign(overlay.style, {
+    position: "fixed", zIndex: 9999, inset: 0, background: "#fff", display: "flex",
+    alignItems: "center", justifyContent: "center", flexDirection: "column"
+  });
+  overlay.innerHTML = `
+    <div style="background:#eee;padding:2em 3em;border-radius:8px;box-shadow:0 0 20px #0002">
+      <h2>Protected site</h2>
+      <p>Enter password to continue:</p>
+      <input id="sitepw" type="password" style="font-size:1em;padding:0.4em;width:15em">
+      <button onclick="loginGo()" style="margin-left:1em;padding:0.4em 1em">Enter</button>
+      <div id="pwmsg" style="color:darkred;margin-top:1em"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  window.loginGo = function() {
+    const v = (document.getElementById("sitepw").value||"");
+    if(v === SITE_PASSWORD) {
+      overlay.remove();
+      sessionStorage.setItem("_loginsite", "OK");
+    } else {
+      document.getElementById("pwmsg").textContent = "Incorrect password!";
+    }
+  };
+}
+if(sessionStorage.getItem("_loginsite") !== "OK") showLoginPrompt();
 // Tab logic
 function showTab(tabId) {
 	["tab-map","tab-upload"].forEach(id => {
