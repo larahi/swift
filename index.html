@@ -61,6 +61,7 @@
 							<option value="SV">St Gallen (SV)</option>
 							<option value="DT">Sursee (DT)</option>
 							<option value="LVS">Baden (LVS)</option>
+							<option value="LVS">Baden (ST)</option>
 							<option value="HK">Luzern (HK)</option>
 							<option value="RK">Seengen (RK)</option>
 							<option value="RK">Langenthal (RK)</option>
@@ -197,7 +198,7 @@ if(document.getElementById("map")) {
 	].forEach(([lat,lng,label]) => marker(lat, lng, '#999', 'lightgrey', 4, label));
 }
 // Google Drive upload integration
-const UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzpNIIrjemy0iTSmAEzOYXxgdGeDs6CE-m3V03gmigVofJbtPjXJ85_pHsfyoaOO3R5/exec';
+const UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwn8A7Nj3Cb3WYjU24swsRDw1DINhv_6MqLrXjEzMaVDl-Mgs9_pbXw95og3fElKNhu/exec';
 document.getElementById("uploadForm").addEventListener("submit", async function(e){
   e.preventDefault();
   const msg = document.getElementById("uploadMsg");
