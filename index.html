@@ -40,12 +40,6 @@
 				<div class="tab active" id="tab-map" onclick="showTab('tab-map')">Colony Map</div>
 				<div class="tab" id="tab-upload" onclick="showTab('tab-upload')">Upload Data</div>
 			</div>
-			<ul class="icons">
-				<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-				<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
-				<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
-				<li><a href="#" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
-			</ul>
 		</nav>
 		<!-- Main -->
 		<div id="main">
@@ -65,54 +59,24 @@
 				<section class="post">
 					<header class="major">
 						<h1>Upload Colony Data Photo</h1>
-						<p>Submit field data observation photos - select the correct colony, data type, date, and image (.jpg).</p>
+						<p>To upload a field data photo, click the button below and add your .jpg to the shared Google Drive folder.<br>Use the colony, data type, and date in the filename if possible.</p>
 					</header>
 					<div style="background:#e9f4ff;margin-bottom:.8em;padding:1em 1.2em;border-radius:6px;border:1px solid #bde;max-width:475px">
-						<b>How to upload:</b><br>
-						1. <b>Enter your GitHub Personal Access Token.</b> <a href="https://github.com/settings/tokens/new" target="_blank">Create one here</a>.<br>
-						- You only need <span style="color:#1565c0">repo / contents: write</span> permission.<br>
-						- <span style="color:#d22">Never share your token with others.</span> Use only for your uploads.<br>
-						2. Fill out the rest and select your .jpg file.<br>
+						<a href="https://drive.google.com/drive/folders/1Ja7ZdS6nWaGLrI_7kuXifEVoXrRqvJ92?usp=sharing" target="_blank"
+						   style="display:inline-block;font-weight:700;background:linear-gradient(90deg,#3bb0fc 50%,#afe4ff 100%);color:#064a7c;padding:1.18em 2.3em;margin-top:10px;border-radius:9px;text-align:center;text-decoration:none;box-shadow:0 1.5px 7px #b1eaff44;font-size:1.17em;transition:background .19s;">
+							Upload Photo to Google Drive
+						</a>
 					</div>
-					<form id="uploadForm">
-						<label><b>Colony:</b></label>
-						<select name="colony" id="colony" required>
-							<option value="SK">Bienne (SK)</option>
-							<option value="BT">Solothurn (BT)</option>
-							<option value="SV">St Gallen (SV)</option>
-							<option value="DT">Sursee (DT)</option>
-							<option value="LVS">Baden (LVS)</option>
-							<option value="HK">Luzern (HK)</option>
-							<option value="RK">Seengen (RK)</option>
-							<option value="RK">Langenthal (RK)</option>
-							<option value="KVS">Lenzburg (KVS)</option>
-						</select>
-						<br><br>
-						<label><b>Data Type:</b></label>
-						<select name="datatype" id="datatype" required>
-							<option value="egg-nest">Egg-nest</option>
-							<option value="nestling">Nestling</option>
-							<option value="adults">Adults</option>
-						</select>
-						<br><br>
-						<label><b>Date:</b></label>
-						<input type="date" name="date" id="date" required value="">
-						<br><br>
-						<label><b>Photo (.jpg):</b></label>
-						<input type="file" name="photo" id="photo" accept="image/jpeg" required />
-						<br><br>
-						<label><b>GitHub Token</b> (for file access):</label>
-						<input type="password" name="token" id="token" autocomplete="off" required placeholder="Paste your token here">
-						<br><br>
-						<button type="submit">Upload</button>
-					</form>
-					<div id="uploadMsg"></div>
+					<ul style="color:#276091;font-size:1.04em;padding-left:.6em;line-height:1.8">
+						<li>Use format: <b>colony_datatype_date.jpg</b> (ex: SK_nestling_20260509.jpg)</li>
+						<li>Images are private; only project admins see uploads.</li>
+						<li>No login needed.</li>
+					</ul>
 				</section>
 			</div>
 		</div>
-		<!-- Footer (copied from elements.html) -->
+		<!-- Footer -->
 		<footer id="footer">
-			<!-- ... as previous ... -->
 		</footer>
 		<div id="copyright">
 			<ul><li>&copy; Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
@@ -162,12 +126,7 @@ function showTab(tabId) {
 	if(tabId === "tab-map") document.getElementById("tabcontent-map").classList.add("active");
 	if(tabId === "tab-upload") document.getElementById("tabcontent-upload").classList.add("active");
 }
-// Set date to today by default
-const dateInput = document.getElementById("date");
-if (dateInput) {
-	const today = new Date().toISOString().substr(0, 10);
-	dateInput.value = today;
-}
+// Set date to today by default (kept for no input)
 // Map logic (only setup if map exists)
 if(document.getElementById("map")) {
 	const map = L.map('map', { center: [47.1, 7.95], zoom: 8 });
@@ -220,62 +179,6 @@ if(document.getElementById("map")) {
 		[47.3782,8.5372,'Zurich – Fraumünster'],
 		[47.2106, 7.5329,'Solothurn – Baselgate'],
 	].forEach(([lat,lng,label]) => marker(lat, lng, '#999', 'lightgrey', 4, label));
-}
-// Upload logic
-const form = document.getElementById("uploadForm");
-if(form) {
-	form.addEventListener("submit", async function(e){
-		e.preventDefault();
-		document.getElementById("uploadMsg").innerHTML = "";
-		// get form data
-		const colony = form.colony.value;
-		const type = form.datatype.value;
-		const date = form.date.value;
-		const file = form.photo.files[0];
-		const token = form.token.value.trim();
-		if(!/\.(jpe?g)$/i.test(file.name)) {
-			document.getElementById("uploadMsg").innerHTML = '<span style="color:red">Please select a .jpg file.</span>';
-			return;
-		}
-		const ymd = (date||'').replaceAll('-','');
-		const fileName = `${colony}_${type}_${ymd}.jpg`;
-		const folder = `${colony}/${type}`;
-		const branch = "main";
-		const repo = "larahi/swift";
-		const url = `https://api.github.com/repos/${repo}/contents/${folder}/${fileName}`;
-		// Read as base64
-		const toBase64 = (file) => new Promise((resolve, reject) => {
-			const reader = new FileReader();
-			reader.readAsDataURL(file);
-			reader.onload = () => resolve(reader.result.split(",")[1]);
-			reader.onerror = error => reject(error);
-		});
-		const content = await toBase64(file);
-		let resp;
-		try {
-			resp = await fetch(url, {
-				method: "PUT",
-				headers: {
-					"Authorization": `token ${token}`,
-					"Content-Type": "application/json",
-					"Accept": "application/vnd.github+json"
-				},
-				body: JSON.stringify({
-					message: `Upload data photo from upload form (${fileName})`,
-					content,
-					branch
-				})
-			});
-			const data = await resp.json();
-			if(resp.status === 201 || resp.status === 200) {
-				document.getElementById("uploadMsg").innerHTML = '<span style="color:green">Upload succeeded! ✨<br><a target="_blank" href="'+data.content.html_url+'">View on GitHub</a></span>';
-			} else {
-				throw new Error(data.message || "Upload failed");
-			}
-		} catch(err) {
-			document.getElementById("uploadMsg").innerHTML = `<span style='color:red'>${err.message||err}</span>`;
-		}
-	});
 }
 </script>
 <!-- Site scripts -->
