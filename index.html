@@ -51,7 +51,7 @@
 				<section class="post">
 					<header class="major">
 						<h1>Upload Colony Data Photo</h1>
-						<p>Select colony info and photo. Files are placed into Google Drive in the correct subfolder, no login required. <br><b>Filenames</b> will be auto-generated using your form inputs.</p>
+						<p>Select colony info and photo(s). Files are placed into Google Drive in the correct colony folder, no login required. <br><b>Filenames</b> will be auto-generated using your form inputs and sequential numbers.</p>
 					</header>
 					<form id="uploadForm" style="max-width: 475px; margin:0 auto;">
 						<label><b>Colony:</b></label>
@@ -197,7 +197,7 @@ if(document.getElementById("map")) {
 		[47.2106, 7.5329,'Solothurn – Baselgate'],
 	].forEach(([lat,lng,label]) => marker(lat, lng, '#999', 'lightgrey', 4, label));
 }
-// Google Drive upload integration
+// Google Drive upload integration (multi-photo)
 const UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwn8A7Nj3Cb3WYjU24swsRDw1DINhv_6MqLrXjEzMaVDl-Mgs9_pbXw95og3fElKNhu/exec';
 document.getElementById("uploadForm").addEventListener("submit", async function(e){
   e.preventDefault();
@@ -207,38 +207,46 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
   const colony = form.colony.value;
   const type = form.type.value;
   const date = form.date.value;
-  const photo = form.photo.files[0];
-  if (!photo) { msg.textContent = "Please select a .jpg file."; return; }
-  if (!/\.(jpe?g)$/i.test(photo.name)) { msg.textContent = "Only .jpg files allowed."; return; }
-  // Convert image to base64
-  const base64 = await new Promise((res,rej)=>{
-    const r = new FileReader();
-    r.onload = () => res(r.result.split(",")[1]);
-    r.onerror = rej;
-    r.readAsDataURL(photo);
-  });
-  const data = {
-    colony, type, date, 
-    fileName: `${colony}_${type}_${date.replace(/-/g,'')}.jpg`,
-    file: base64,
-    contentType: 'image/jpeg'
-  };
-  msg.textContent = "Uploading...";
-  fetch(UPLOAD_ENDPOINT, {
-    method: "POST",
-    body: new URLSearchParams(data),
-    headers: { "Accept": "application/json" }
-  })
-  .then(res => res.json())
-  .then(response => {
-    if (response.success) {
-      msg.innerHTML = '<span style="color:green">Upload succeeded! <a href="' + response.url + '" target="_blank">View file</a></span>';
-    } else {
-      msg.innerHTML = '<span style="color:red">' + (response.error || "Upload failed") + '</span>';
+  const photos = form.photo.files;
+  if (!photos.length) { msg.textContent = "Please select at least one .jpg file."; return; }
+  let results = [];
+  for (let i = 0; i < photos.length; i++) {
+    const photo = photos[i];
+    if (!/\.(jpe?g)$/i.test(photo.name)) {
+      results.push(`<span style=\"color:red\">Only .jpg files allowed (${photo.name})</span>`);
+      continue;
     }
-  }).catch(err => {
-    msg.innerHTML = "<span style='color:red'>Upload error: "+err+"</span>";
-  });
+    let base64 = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result.split(",")[1]);
+      r.onerror = rej;
+      r.readAsDataURL(photo);
+    });
+    const num = i + 1;
+    const fileName = `${colony}_${type}_${date.replace(/-/g,'')}_${num}.jpg`;
+    const data = {
+      colony, type, date,
+      fileName: fileName,
+      file: base64,
+      contentType: 'image/jpeg'
+    };
+    try {
+      const resp = await fetch(UPLOAD_ENDPOINT, {
+        method: "POST",
+        body: new URLSearchParams(data),
+        headers: { "Accept": "application/json" }
+      });
+      const response = await resp.json();
+      if (response.success) {
+        results.push(`<span style=\"color:green\">Upload succeeded: <a href=\"${response.url}\" target=\"_blank\">${fileName}</a></span>`);
+      } else {
+        results.push(`<span style=\"color:red\">${fileName}: ${response.error || "Upload failed"}</span>`);
+      }
+    } catch (err) {
+      results.push(`<span style=\"color:red\">${fileName}: Upload error: ${err}</span>`);
+    }
+  }
+  msg.innerHTML = results.join("<br>");
 });
 </script>
 <script src="assets/js/jquery.min.js"></script>
