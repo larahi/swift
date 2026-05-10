@@ -197,7 +197,7 @@ if(document.getElementById("map")) {
 	].forEach(([lat,lng,label]) => marker(lat, lng, '#999', 'lightgrey', 4, label));
 }
 // Google Drive upload integration
-const UPLOAD_ENDPOINT = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+const UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzpNIIrjemy0iTSmAEzOYXxgdGeDs6CE-m3V03gmigVofJbtPjXJ85_pHsfyoaOO3R5/exec';
 document.getElementById("uploadForm").addEventListener("submit", async function(e){
   e.preventDefault();
   const msg = document.getElementById("uploadMsg");
