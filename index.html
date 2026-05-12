@@ -29,8 +29,8 @@
 		</header>
 		<nav id="nav">
 			<div class="tabs">
-				<div class="tab active" id="tab-map" onclick="showTab('tab-map')">Colony Map</div>
-				<div class="tab" id="tab-upload" onclick="showTab('tab-upload')">Upload Data</div>
+				<button type="button" class="tab active" id="tab-map" aria-controls="tabcontent-map" aria-selected="true">Colony Map</button>
+				<button type="button" class="tab" id="tab-upload" aria-controls="tabcontent-upload" aria-selected="false">Upload Data</button>
 			</div>
 		</nav>
 		<!-- Main -->
@@ -125,15 +125,22 @@ if(sessionStorage.getItem("_loginsite") !== "OK") showLoginPrompt();
 
 function showTab(tabId) {
 	["tab-map","tab-upload"].forEach(id => {
-		document.getElementById(id).classList.remove("active");
+		const tab = document.getElementById(id);
+		tab.classList.remove("active");
+		tab.setAttribute("aria-selected", "false");
 	});
 	["tabcontent-map","tabcontent-upload"].forEach(id => {
 		document.getElementById(id).classList.remove("active");
 	});
-	document.getElementById(tabId).classList.add("active");
+	const activeTab = document.getElementById(tabId);
+	activeTab.classList.add("active");
+	activeTab.setAttribute("aria-selected", "true");
 	if(tabId === "tab-map") document.getElementById("tabcontent-map").classList.add("active");
 	if(tabId === "tab-upload") document.getElementById("tabcontent-upload").classList.add("active");
 }
+document.querySelectorAll(".tabs .tab").forEach(tab => {
+	tab.addEventListener("click", () => showTab(tab.id));
+});
 // Set date to today by default
 const dateInput = document.getElementById("date");
 if (dateInput) {
