@@ -96,6 +96,7 @@
 	<script>
 const SITE_PASSWORD = "swifty";
 const SBB_FROM_LABEL = "Current location";
+const MAP_RESIZE_DELAY_MS = 100;
 let colonyMap = null;
 function showLoginPrompt() {
   const overlay = document.createElement("div");
@@ -139,8 +140,8 @@ function showTab(tabId) {
 	activeTab.setAttribute("aria-selected", "true");
 	if(tabId === "tab-map") {
 		document.getElementById("tabcontent-map").classList.add("active");
-		// Wait for tab visibility/layout to apply before forcing Leaflet to recalculate map dimensions.
-		if (colonyMap) requestAnimationFrame(() => requestAnimationFrame(() => colonyMap.invalidateSize()));
+		// Leaflet needs a short delay after the tab becomes visible to recalculate the map canvas correctly.
+		if (colonyMap) setTimeout(() => colonyMap.invalidateSize(), MAP_RESIZE_DELAY_MS);
 	}
 	if(tabId === "tab-upload") document.getElementById("tabcontent-upload").classList.add("active");
 }
@@ -177,14 +178,14 @@ if(document.getElementById("map")) {
 	function popupContent(lat, lng, label) {
 		const encodedLabel = encodeURIComponent(label);
 		const sbbTimetableUrl = `https://www.sbb.ch/en/timetable.html?from=${encodeURIComponent(SBB_FROM_LABEL)}&to=${encodedLabel}`;
-		const sbbAppFallbackUrl = `sbbmobile://timetable?to=${encodedLabel}`;
+		const sbbAppUrl = `sbbmobile://timetable?to=${encodedLabel}`;
 		const coordinates = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 		return `
 			<div class="popup-content">
 				<strong>${escapeHtml(label)}</strong><br />
 				<small>${coordinates}</small><br />
 				<a class="popup-action" href="${sbbTimetableUrl}" target="_blank" rel="noopener noreferrer">Open SBB trains</a>
-				<a class="popup-action secondary" href="${sbbAppFallbackUrl}">Open SBB app</a>
+				<a class="popup-action secondary" href="${sbbAppUrl}">Open SBB app</a>
 			</div>
 		`;
 	}
