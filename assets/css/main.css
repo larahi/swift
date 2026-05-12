@@ -20,9 +20,9 @@ body {
 }
 
 #wrapper {
-  max-width: 940px;
+  max-width: 1024px;
   margin: 48px auto 24px auto;
-  padding: 32px 26px 34px 26px;
+  padding: 32px 32px 34px 32px;
   background: rgba(255,255,255,0.98);
   border-radius: 21px;
   box-shadow: 0 6px 32px 0 rgba(52, 104, 168, 0.14), 0 1.5px 5px 1px #c9e6fa;
@@ -41,15 +41,19 @@ header#header {
 
 .tabs {
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.35em;
   border-bottom: 0;
   margin-bottom: 2.2em;
   background: #eaf4fb;
   border-radius: 11px;
   box-shadow: 0 2px 6px #b5d9f722;
-  padding: 0.2em 0.1em 0.2em 0.5em;
+  padding: 0.35em;
 }
 .tab {
-  padding: 0.85em 2.7em 0.8em 2em;
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0.75em 1.3em;
   cursor: pointer;
   font-weight: 700;
   font-size: 1.09em;
@@ -58,10 +62,9 @@ header#header {
   color: #1976D2;
   border: none;
   transition: background 0.19s, color 0.19s;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  margin-right: 0.2em;
+  border-radius: 9px;
   border-bottom: 3px solid transparent;
+  line-height: 1.2;
 }
 .tab.active {
   background: linear-gradient(90deg, #e0f1fa 70%, #c1eaf9 100%);
@@ -73,8 +76,16 @@ header#header {
 .tab:not(.active):hover {
   background: #f2faff;
 }
+.tab:focus-visible {
+  outline: 2px solid #1976D2;
+  outline-offset: 2px;
+}
 .tabcontent {
+  display: none;
   padding: 0 6px 2rem 6px;
+}
+.tabcontent.active {
+  display: block;
 }
 
 #main {
@@ -189,6 +200,7 @@ h4 {
   border-radius: 10px;
   border: 1.5px solid #cfeaf9;
   margin-bottom: 1.9em;
+  overflow: hidden;
 }
 .legend {
   background: #f9ffff;
@@ -197,6 +209,26 @@ h4 {
 }
 .legend .dot {
   border: 1px solid #1976D2;
+}
+.popup-content {
+  min-width: 180px;
+}
+.popup-action {
+  display: inline-block;
+  margin-top: 0.5em;
+  margin-right: 0.35em;
+  border: 0;
+  border-radius: 8px;
+  padding: 0.35em 0.7em;
+  font-size: 0.92em;
+  font-weight: 700;
+  text-decoration: none;
+  background: #1976D2;
+  color: #fff !important;
+}
+.popup-action.secondary {
+  background: #e3f1ff;
+  color: #124e8c !important;
 }
 
 /* Footer and Copyright */

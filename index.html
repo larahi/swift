@@ -29,8 +29,8 @@
 		</header>
 		<nav id="nav">
 			<div class="tabs">
-				<div class="tab active" id="tab-map" onclick="showTab('tab-map')">Colony Map</div>
-				<div class="tab" id="tab-upload" onclick="showTab('tab-upload')">Upload Data</div>
+				<button type="button" class="tab active" id="tab-map" data-tab-target="tabcontent-map" aria-controls="tabcontent-map" aria-selected="true">Colony Map</button>
+				<button type="button" class="tab" id="tab-upload" data-tab-target="tabcontent-upload" aria-controls="tabcontent-upload" aria-selected="false">Upload Data</button>
 			</div>
 		</nav>
 		<!-- Main -->
@@ -93,8 +93,9 @@
 		</div>
 	</div>
 	<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-	<script>
+<script>
 const SITE_PASSWORD = "swifty";
+let colonyMap = null;
 function showLoginPrompt() {
   const overlay = document.createElement("div");
   Object.assign(overlay.style, {
@@ -125,15 +126,25 @@ if(sessionStorage.getItem("_loginsite") !== "OK") showLoginPrompt();
 
 function showTab(tabId) {
 	["tab-map","tab-upload"].forEach(id => {
-		document.getElementById(id).classList.remove("active");
+		const tab = document.getElementById(id);
+		tab.classList.remove("active");
+		tab.setAttribute("aria-selected", "false");
 	});
 	["tabcontent-map","tabcontent-upload"].forEach(id => {
 		document.getElementById(id).classList.remove("active");
 	});
-	document.getElementById(tabId).classList.add("active");
-	if(tabId === "tab-map") document.getElementById("tabcontent-map").classList.add("active");
+	const activeTab = document.getElementById(tabId);
+	activeTab.classList.add("active");
+	activeTab.setAttribute("aria-selected", "true");
+	if(tabId === "tab-map") {
+		document.getElementById("tabcontent-map").classList.add("active");
+		if (colonyMap) setTimeout(() => colonyMap.invalidateSize(), 120);
+	}
 	if(tabId === "tab-upload") document.getElementById("tabcontent-upload").classList.add("active");
 }
+document.querySelectorAll(".tabs .tab").forEach(tab => {
+	tab.addEventListener("click", () => showTab(tab.id));
+});
 // Set date to today by default
 const dateInput = document.getElementById("date");
 if (dateInput) {
@@ -142,10 +153,10 @@ if (dateInput) {
 }
 // Map logic (full colony set and colors)
 if(document.getElementById("map")) {
-	const map = L.map('map', { center: [47.1, 7.95], zoom: 8 });
+	colonyMap = L.map('map', { center: [47.1, 7.95], zoom: 8 });
 	L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
 		attribution: '&copy; OpenStreetMap &copy; CartoDB', maxZoom: 18
-	}).addTo(map);
+	}).addTo(colonyMap);
 	const legend = L.control({ position: 'bottomleft' });
 	legend.onAdd = function() {
 		const d = L.DomUtil.create('div', 'legend');
@@ -157,9 +168,28 @@ if(document.getElementById("map")) {
 			<div><span class="dot" style="background:#1976D2"></span> Soundbox experiment part A</div>`;
 		return d;
 	};
-	legend.addTo(map);
+	legend.addTo(colonyMap);
+	const escapeHtml = (v) => String(v).replace(/[&<>"']/g, (ch) => ({
+		"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+	}[ch]));
+	function popupContent(lat, lng, label) {
+		const encodedLabel = encodeURIComponent(label);
+		const sbbTimetableUrl = `https://www.sbb.ch/en/timetable.html?from=${encodeURIComponent("Current location")}&to=${encodedLabel}`;
+		const sbbAppFallbackUrl = `sbbmobile://timetable?to=${encodedLabel}`;
+		const coordinates = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+		return `
+			<div class="popup-content">
+				<strong>${escapeHtml(label)}</strong><br />
+				<small>${coordinates}</small><br />
+				<a class="popup-action" href="${sbbTimetableUrl}" target="_blank" rel="noopener noreferrer">Open SBB trains</a>
+				<a class="popup-action secondary" href="${sbbAppFallbackUrl}">Open SBB app</a>
+			</div>
+		`;
+	}
 	function marker(lat, lng, color, fillColor, radius, label) {
-		L.circleMarker([lat, lng], { color, fillColor, fillOpacity: 0.9, radius, weight: 2 }).addTo(map).bindPopup(label);
+		L.circleMarker([lat, lng], { color, fillColor, fillOpacity: 0.9, radius, weight: 2 })
+			.addTo(colonyMap)
+			.bindPopup(popupContent(lat, lng, label), { maxWidth: 280 });
 	}
 	// Blue series (Soundbox A)
 	const blue = '#1565C0', blueFill = '#1976D2';
