@@ -93,8 +93,9 @@
 		</div>
 	</div>
 	<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
+	<script>
 const SITE_PASSWORD = "swifty";
+const SBB_FROM_LABEL = "Current location";
 let colonyMap = null;
 function showLoginPrompt() {
   const overlay = document.createElement("div");
@@ -138,7 +139,7 @@ function showTab(tabId) {
 	activeTab.setAttribute("aria-selected", "true");
 	if(tabId === "tab-map") {
 		document.getElementById("tabcontent-map").classList.add("active");
-		if (colonyMap) setTimeout(() => colonyMap.invalidateSize(), 120);
+		if (colonyMap) requestAnimationFrame(() => requestAnimationFrame(() => colonyMap.invalidateSize()));
 	}
 	if(tabId === "tab-upload") document.getElementById("tabcontent-upload").classList.add("active");
 }
@@ -174,7 +175,7 @@ if(document.getElementById("map")) {
 	}[ch]));
 	function popupContent(lat, lng, label) {
 		const encodedLabel = encodeURIComponent(label);
-		const sbbTimetableUrl = `https://www.sbb.ch/en/timetable.html?from=${encodeURIComponent("Current location")}&to=${encodedLabel}`;
+		const sbbTimetableUrl = `https://www.sbb.ch/en/timetable.html?from=${encodeURIComponent(SBB_FROM_LABEL)}&to=${encodedLabel}`;
 		const sbbAppFallbackUrl = `sbbmobile://timetable?to=${encodedLabel}`;
 		const coordinates = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 		return `
