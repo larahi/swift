@@ -11,6 +11,10 @@ html, body {
   font-family: 'Merriweather', Georgia, serif;
 }
 
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 body {
   min-height: 100vh;
   margin: 0;
@@ -43,6 +47,7 @@ header#header {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35em;
+   align-items: stretch;
   border-bottom: 0;
   margin-bottom: 2.2em;
   background: #eaf4fb;
@@ -53,6 +58,7 @@ header#header {
 .tab {
   appearance: none;
   -webkit-appearance: none;
+  flex: 1 1 12rem;
   padding: 0.75em 1.3em;
   cursor: pointer;
   font-weight: 700;
@@ -65,6 +71,7 @@ header#header {
   border-radius: 9px;
   border-bottom: 3px solid transparent;
   line-height: 1.2;
+  text-align: center;
 }
 .tab.active {
   background: linear-gradient(90deg, #e0f1fa 70%, #c1eaf9 100%);
@@ -149,6 +156,8 @@ h4 {
   margin-bottom: 10px;
   background: #fff;
   transition: border 0.18s, box-shadow 0.16s, background 0.17s;
+  width: 100%;
+  max-width: 100%;
 }
 #uploadForm input:focus, #uploadForm select:focus {
   border: 1.5px solid #3496f9;
@@ -164,6 +173,7 @@ h4 {
   margin-top: 0.5em;
   box-shadow: 0 2px 7px #94dafe36;
   transition: background 0.21s;
+  display: block;
 }
 #uploadForm button:hover {
   background: linear-gradient(90deg, #2d8fe8 60%, #aaddff 100%);
@@ -195,6 +205,8 @@ h4 {
 
 /* Map adapts to white box */
 #map {
+  width: 100%;
+  min-height: clamp(20rem, 55vh, 31.25rem);
   box-shadow: 0 2px 11px #c3e6fa18;
   background: #f4fbff;
   border-radius: 10px;
@@ -206,9 +218,53 @@ h4 {
   background: #f9ffff;
   border: 1.3px solid #d5ebf7;
   color: #13425b;
+  max-width: min(16rem, calc(100vw - 3rem));
 }
 .legend .dot {
   border: 1px solid #1976D2;
+}
+
+.site-login-overlay {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.site-login-card {
+  width: min(100%, 26rem);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: #eef7ff;
+  box-shadow: 0 0 20px #0002;
+}
+
+.site-login-input {
+  width: 100%;
+  margin: 0 0 0.75rem 0;
+  padding: 0.65rem 0.85rem;
+  font-size: 1rem;
+  border: 1.5px solid #b0cdfc;
+  border-radius: 0.65rem;
+}
+
+.site-login-button {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border: 0;
+  border-radius: 0.65rem;
+  background: linear-gradient(90deg, #44b0ff 45%, #bef2fe 100%);
+  color: #183d78;
+  font-weight: 700;
+}
+
+.site-login-message {
+  color: darkred;
+  margin-top: 1rem;
 }
 .popup-content {
   min-width: 180px;
@@ -270,14 +326,59 @@ a:hover {
 
 /* Responsive: keep boxed, but pad less on mobile */
 @media(max-width:670px) {
-  #wrapper, section.post, #uploadForm { padding: 10px; }
-  .tab { padding: 0.6em 1.3em!important; }
+  #wrapper {
+    margin: 20px 12px;
+    padding: 16px;
+  }
+  section.post,
+  #uploadForm {
+    padding: 18px 14px;
+  }
+  .tabs {
+    gap: 0.5em;
+    margin-bottom: 1.4em;
+  }
+  .tab {
+    flex-basis: 100%;
+    padding: 0.75em 1em !important;
+  }
+  .tabcontent {
+    padding: 0 0 1.25rem 0;
+  }
+  h1 {
+    font-size: 1.85rem;
+  }
+  p,
+  label,
+  input,
+  select,
+  option,
+  textarea {
+    font-size: 1rem;
+  }
 }
 @media(max-width:500px){
-  #wrapper { margin-left: 1.5vw; margin-right: 1.5vw; padding: 4vw 1.9vw; }
+  #wrapper {
+    margin: 12px 8px;
+    padding: 12px;
+    border-radius: 16px;
+  }
+  section.post {
+    padding: 16px 12px;
+  }
+  #map {
+    min-height: 18rem;
+  }
+  .legend {
+    font-size: 10px;
+    line-height: 1.55;
+  }
+  .site-login-card {
+    padding: 1.2rem;
+  }
 }
 @media(max-width:400px){
-  #wrapper { margin: 2vw 0; padding: 2vw 0.5vw; }
+  #wrapper { margin: 8px 4px; padding: 10px 8px; }
   .tab { font-size: 0.98em; }
-  #uploadForm { padding: 4vw 1vw; }
+  #uploadForm { padding: 14px 10px; }
 }
