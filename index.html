@@ -139,6 +139,7 @@ function showTab(tabId) {
 	activeTab.setAttribute("aria-selected", "true");
 	if(tabId === "tab-map") {
 		document.getElementById("tabcontent-map").classList.add("active");
+		// Wait for tab visibility/layout to apply before forcing Leaflet to recalculate map dimensions.
 		if (colonyMap) requestAnimationFrame(() => requestAnimationFrame(() => colonyMap.invalidateSize()));
 	}
 	if(tabId === "tab-upload") document.getElementById("tabcontent-upload").classList.add("active");
