@@ -47,7 +47,7 @@ header#header {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35em;
-   align-items: stretch;
+  align-items: stretch;
   border-bottom: 0;
   margin-bottom: 2.2em;
   background: #eaf4fb;
