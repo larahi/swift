@@ -6,7 +6,7 @@
 -->
 <html>
 <head>
-	<title>Colony Map - Massively by HTML5 UP</title>
+	<title>Swift Colony Map</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
 	<link rel="stylesheet" href="assets/css/main.css" />
@@ -27,7 +27,7 @@
 		<header id="header">
 			<a href="index.html" class="logo">Swift Map</a>
 		</header>
-		<nav id="nav">
+		<nav id="nav" class="keep-visible-on-mobile">
 			<div class="tabs">
 				<button type="button" class="tab active" id="tab-map" aria-controls="tabcontent-map" aria-selected="true">Colony Map</button>
 				<button type="button" class="tab" id="tab-upload" aria-controls="tabcontent-upload" aria-selected="false">Upload Data</button>
@@ -73,7 +73,17 @@
 							<option value="egg-nest">Egg-nest</option>
 							<option value="nestling">Nestling</option>
 							<option value="adults">Adults</option>
+							<option value="incub">Incub</option>
 						</select>
+						<div id="incubChoiceWrap" style="display:none;">
+							<label><b>Incub Type:</b></label>
+							<select name="incubChoice" id="incubChoice">
+								<option value="egg">Egg</option>
+								<option value="x">x</option>
+								<option value="y">y</option>
+								<option value="z">z</option>
+							</select>
+						</div>
 						<br><br>
 						<label><b>Date:</b></label>
 						<input type="date" name="date" id="date" required>
@@ -89,7 +99,7 @@
 		</div>
 		<footer id="footer"></footer>
 		<div id="copyright">
-			<ul><li>&copy; Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+			<ul><li>&copy; Swift Colony Monitoring</li><li>Professional field data portal</li></ul>
 		</div>
 	</div>
 	<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -149,6 +159,19 @@ const dateInput = document.getElementById("date");
 if (dateInput) {
 	const today = new Date().toISOString().substr(0, 10);
 	dateInput.value = today;
+}
+const typeInput = document.getElementById("type");
+const incubChoiceWrap = document.getElementById("incubChoiceWrap");
+const incubChoiceInput = document.getElementById("incubChoice");
+function syncIncubFields() {
+	const isIncub = typeInput && typeInput.value === "incub";
+	if (!incubChoiceWrap || !incubChoiceInput) return;
+	incubChoiceWrap.style.display = isIncub ? "block" : "none";
+	incubChoiceInput.required = isIncub;
+}
+if (typeInput) {
+	typeInput.addEventListener("change", syncIncubFields);
+	syncIncubFields();
 }
 // Map logic (full colony set and colors)
 if(document.getElementById("map")) {
@@ -216,6 +239,7 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
   const form = e.target;
   const colony = form.colony.value;
   const type = form.type.value;
+  const incubChoice = (form.incubChoice && form.incubChoice.value) ? form.incubChoice.value : "egg";
   const date = form.date.value;
   const photos = form.photo.files;
   if (!photos.length) { msg.textContent = "Please select at least one .jpg file."; return; }
@@ -233,9 +257,16 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
       r.readAsDataURL(photo);
     });
     const num = i + 1;
-    const fileName = `${colony}_${type}_${date.replace(/-/g,'')}_${num}.jpg`;
+    const normalizedDate = date.replace(/-/g,'');
+    const isIncub = type === "incub";
+    const fileName = isIncub
+      ? `Incub_${colony}_${normalizedDate}_${incubChoice}_${num}.jpg`
+      : `${colony}_${type}_${normalizedDate}_${num}.jpg`;
     const data = {
-      colony, type, date,
+      colony,
+      type: isIncub ? incubChoice : type,
+      category: isIncub ? "Incub" : "Default",
+      date,
       fileName: fileName,
       file: base64,
       contentType: 'image/jpeg'

@@ -202,6 +202,15 @@ h4 {
   transition: color 0.16s;
 }
 #nav ul.icons a:hover { color: #1565c0; }
+#navPanelToggle.hidden { display: none !important; }
+#nav.keep-visible-on-mobile {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  border-radius: 12px;
+}
 
 /* Map adapts to white box */
 #map {
@@ -326,6 +335,10 @@ a:hover {
 
 /* Responsive: keep boxed, but pad less on mobile */
 @media(max-width:670px) {
+  #nav.keep-visible-on-mobile {
+    top: max(0px, env(safe-area-inset-top));
+    margin-bottom: 1rem;
+  }
   #wrapper {
     margin: 20px 12px;
     padding: 16px;
@@ -335,12 +348,15 @@ a:hover {
     padding: 18px 14px;
   }
   .tabs {
-    gap: 0.5em;
+    gap: 0.4em;
     margin-bottom: 1.4em;
+    padding: 0.3em;
   }
   .tab {
-    flex-basis: 100%;
-    padding: 0.75em 1em !important;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.7em 0.7em !important;
+    font-size: 0.98em;
   }
   .tabcontent {
     padding: 0 0 1.25rem 0;

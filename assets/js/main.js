@@ -12,7 +12,8 @@
 		$header = $('#header'),
 		$nav = $('#nav'),
 		$main = $('#main'),
-		$navPanelToggle, $navPanel, $navPanelInner;
+		$navPanelToggle, $navPanel, $navPanelInner,
+		keepNavInPlace = $nav.hasClass('keep-visible-on-mobile');
 
 	// Breakpoints.
 		breakpoints({
@@ -131,6 +132,9 @@
 			)
 				.appendTo($wrapper);
 
+			if (keepNavInPlace)
+				$navPanelToggle.addClass('hidden');
+
 			// Change toggle styling once we've scrolled past the header.
 				$header.scrollex({
 					bottom: '5vh',
@@ -180,6 +184,13 @@
 				});
 
 				breakpoints.on('<=medium', function() {
+
+					if (keepNavInPlace) {
+						$navContent.appendTo($nav);
+						$nav.find('.icons, .icon')
+							.removeClass('alt');
+						return;
+					}
 
 					// Nav -> NavPanel.
 						$navContent.appendTo($navPanelInner);
