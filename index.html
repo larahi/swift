@@ -136,6 +136,8 @@ if(sessionStorage.getItem("_loginsite") !== "OK") showLoginPrompt();
 
 let colonyMap = null;
 let colonyMarkerGroup = null;
+let hasMapResizeListener = false;
+const MAP_BOUNDS_PADDING = [18, 18];
 const mapContainer = document.getElementById("map");
 
 function refreshMapLayout() {
@@ -206,9 +208,12 @@ function initMapIfNeeded() {
 	].forEach(([lat,lng,label]) => marker(lat, lng, '#999', 'lightgrey', 4, label));
 
 	if (colonyMarkerGroup.getLayers().length > 0) {
-		map.fitBounds(colonyMarkerGroup.getBounds(), { padding: [18, 18] });
+		map.fitBounds(colonyMarkerGroup.getBounds(), { padding: MAP_BOUNDS_PADDING });
 	}
-	window.addEventListener("resize", refreshMapLayout);
+	if (!hasMapResizeListener) {
+		window.addEventListener("resize", refreshMapLayout);
+		hasMapResizeListener = true;
+	}
 	refreshMapLayout();
 }
 
