@@ -312,6 +312,24 @@ h4 {
   text-align: center;
   margin-top: 0.8em;
 }
+#copyright ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  flex-wrap: wrap;
+}
+#copyright li {
+  display: inline;
+}
+#copyright li + li::before {
+  content: "|";
+  margin-right: 0.35em;
+  color: #b0c0d8;
+}
 
 /* Cards in generic/elements.html (and featured boxes) */
 section.post, .box {

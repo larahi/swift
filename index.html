@@ -88,8 +88,8 @@
 						<label><b>Date:</b></label>
 						<input type="date" name="date" id="date" required>
 						<br><br>
-						<label><b>Photo(s) (.jpg):</b></label>
-						<input type="file" name="photo" id="photo" accept="image/jpeg" multiple required />
+						<label><b>Photo(s):</b></label>
+						<input type="file" name="photo" id="photo" accept="image/*" multiple required />
 						<br><br>
 						<button type="submit">Upload</button>
 						<div id="uploadMsg" style="margin-top:15px"></div>
@@ -249,14 +249,33 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
   }
   const date = form.date.value;
   const photos = form.photo.files;
-  if (!photos.length) { msg.textContent = "Please select at least one .jpg file."; return; }
+  if (!photos.length) { msg.textContent = "Please select at least one photo file."; return; }
+  const fallbackMimeByExt = {
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    webp: "image/webp",
+    gif: "image/gif",
+    bmp: "image/bmp",
+    heic: "image/heic",
+    heif: "image/heif",
+    tif: "image/tiff",
+    tiff: "image/tiff",
+    avif: "image/avif"
+  };
   let results = [];
   for (let i = 0; i < photos.length; i++) {
     const photo = photos[i];
-    if (!/\.(jpe?g)$/i.test(photo.name)) {
-      results.push(`<span style=\"color:red\">Only .jpg files allowed (${photo.name})</span>`);
+    const nameMatch = (photo.name || "").match(/\.([a-z0-9]+)$/i);
+    const extension = nameMatch ? nameMatch[1].toLowerCase() : "";
+    const mimeType = (photo.type || "").toLowerCase();
+    const isImageMime = mimeType.startsWith("image/");
+    if (!isImageMime && !(extension in fallbackMimeByExt)) {
+      results.push(`<span style=\"color:red\">Only image files are allowed (${photo.name || "unnamed file"})</span>`);
       continue;
     }
+    const contentType = isImageMime ? mimeType : (fallbackMimeByExt[extension] || "image/jpeg");
+    const safeExtension = extension || (contentType.split("/")[1] || "jpg");
     let base64 = await new Promise((res, rej) => {
       const r = new FileReader();
       r.onload = () => res(r.result.split(",")[1]);
@@ -266,8 +285,8 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
     const num = i + 1;
     const normalizedDate = date.replace(/-/g,'');
     const fileName = isIncubUpload
-      ? `Incub_${colony}_${normalizedDate}_${incubChoice}_${num}.jpg`
-      : `${colony}_${type}_${normalizedDate}_${num}.jpg`;
+      ? `Incub_${colony}_${normalizedDate}_${incubChoice}_${num}.${safeExtension}`
+      : `${colony}_${type}_${normalizedDate}_${num}.${safeExtension}`;
     const data = {
       colony,
       type,
@@ -275,7 +294,7 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
       date,
       fileName: fileName,
       file: base64,
-      contentType: 'image/jpeg'
+      contentType: contentType
     };
     if (isIncubUpload) data.incubType = incubChoice;
     try {
