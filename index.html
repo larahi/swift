@@ -265,14 +265,13 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
     });
     const num = i + 1;
     const normalizedDate = date.replace(/-/g,'');
-    const selectedIncubChoice = incubChoice;
     const fileName = isIncubType
-      ? `Incub_${colony}_${normalizedDate}_${selectedIncubChoice}_${num}.jpg`
+      ? `Incub_${colony}_${normalizedDate}_${incubChoice}_${num}.jpg`
       : `${colony}_${type}_${normalizedDate}_${num}.jpg`;
     const data = {
       colony,
       type,
-      incubType: isIncubType ? selectedIncubChoice : "",
+      incubType: isIncubType ? incubChoice : "",
       category: isIncubType ? CATEGORY_INCUB : CATEGORY_DEFAULT,
       date,
       fileName: fileName,
