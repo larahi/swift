@@ -135,6 +135,7 @@ function showLoginPrompt() {
 if(sessionStorage.getItem("_loginsite") !== "OK") showLoginPrompt();
 
 let colonyMap = null;
+let colonyMarkerGroup = null;
 const mapContainer = document.getElementById("map");
 
 function refreshMapLayout() {
@@ -162,10 +163,10 @@ function initMapIfNeeded() {
 		return d;
 	};
 	legend.addTo(map);
-	const allMarkers = L.featureGroup().addTo(map);
+	colonyMarkerGroup = L.featureGroup().addTo(map);
 	function marker(lat, lng, color, fillColor, radius, label) {
 		L.circleMarker([lat, lng], { color, fillColor, fillOpacity: 0.9, radius, weight: 2 })
-			.addTo(allMarkers)
+			.addTo(colonyMarkerGroup)
 			.bindPopup(label);
 	}
 	// Blue series (Soundbox A)
@@ -204,7 +205,9 @@ function initMapIfNeeded() {
 		[47.2106, 7.5329,'Solothurn – Baselgate'],
 	].forEach(([lat,lng,label]) => marker(lat, lng, '#999', 'lightgrey', 4, label));
 
-	map.fitBounds(allMarkers.getBounds(), { padding: [18, 18] });
+	if (colonyMarkerGroup.getLayers().length > 0) {
+		map.fitBounds(colonyMarkerGroup.getBounds(), { padding: [18, 18] });
+	}
 	refreshMapLayout();
 }
 
