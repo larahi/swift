@@ -261,7 +261,10 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
     heif: "image/heif",
     tif: "image/tiff",
     tiff: "image/tiff",
-    avif: "image/avif"
+    avif: "image/avif",
+    jp2: "image/jp2",
+    j2k: "image/jp2",
+    dng: "image/x-adobe-dng"
   };
   const extByMime = {
     "image/jpeg": "jpg",
@@ -272,12 +275,14 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
     "image/heic": "heic",
     "image/heif": "heif",
     "image/tiff": "tiff",
-    "image/avif": "avif"
+    "image/avif": "avif",
+    "image/jp2": "jp2",
+    "image/x-adobe-dng": "dng"
   };
   let results = [];
   for (let i = 0; i < photos.length; i++) {
     const photo = photos[i];
-    const nameMatch = (photo.name || "").match(/\.([a-z]+)$/i);
+    const nameMatch = (photo.name || "").match(/\.([a-z0-9]+)$/i);
     const extension = nameMatch ? nameMatch[1].toLowerCase() : "";
     const mimeType = (photo.type || "").toLowerCase();
     const isImageMime = mimeType.startsWith("image/");
@@ -287,10 +292,12 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
       continue;
     }
     const hasKnownMime = mimeType in extByMime;
-    const contentType = isImageMime ? mimeType : mimeByExt[extension];
-    const safeExtension = isImageMime
-      ? (hasKnownMime ? extByMime[mimeType] : extension)
-      : extension;
+    const contentType = hasKnownMime
+      ? mimeType
+      : (hasKnownExt ? mimeByExt[extension] : "");
+    const safeExtension = hasKnownMime
+      ? extByMime[mimeType]
+      : (hasKnownExt ? extension : "");
     if (!contentType) {
       results.push(`<span style=\"color:red\">Only image files are allowed (${photo.name || "unnamed file"})</span>`);
       continue;
