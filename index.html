@@ -234,6 +234,35 @@ if(document.getElementById("map")) {
 const UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwn8A7Nj3Cb3WYjU24swsRDw1DINhv_6MqLrXjEzMaVDl-Mgs9_pbXw95og3fElKNhu/exec';
 const CATEGORY_INCUB = "Incub";
 const CATEGORY_DEFAULT = "Default";
+const MIME_BY_EXT = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+  gif: "image/gif",
+  bmp: "image/bmp",
+  heic: "image/heic",
+  heif: "image/heif",
+  tif: "image/tiff",
+  tiff: "image/tiff",
+  avif: "image/avif",
+  jp2: "image/jp2",
+  j2k: "image/jp2",
+  dng: "image/x-adobe-dng"
+};
+const EXT_BY_MIME = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+  "image/bmp": "bmp",
+  "image/heic": "heic",
+  "image/heif": "heif",
+  "image/tiff": "tiff",
+  "image/avif": "avif",
+  "image/jp2": "jp2",
+  "image/x-adobe-dng": "dng"
+};
 document.getElementById("uploadForm").addEventListener("submit", async function(e){
   e.preventDefault();
   const msg = document.getElementById("uploadMsg");
@@ -250,35 +279,6 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
   const date = form.date.value;
   const photos = form.photo.files;
   if (!photos.length) { msg.textContent = "Please select at least one photo file."; return; }
-  const mimeByExt = {
-    jpg: "image/jpeg",
-    jpeg: "image/jpeg",
-    png: "image/png",
-    webp: "image/webp",
-    gif: "image/gif",
-    bmp: "image/bmp",
-    heic: "image/heic",
-    heif: "image/heif",
-    tif: "image/tiff",
-    tiff: "image/tiff",
-    avif: "image/avif",
-    jp2: "image/jp2",
-    j2k: "image/jp2",
-    dng: "image/x-adobe-dng"
-  };
-  const extByMime = {
-    "image/jpeg": "jpg",
-    "image/png": "png",
-    "image/webp": "webp",
-    "image/gif": "gif",
-    "image/bmp": "bmp",
-    "image/heic": "heic",
-    "image/heif": "heif",
-    "image/tiff": "tiff",
-    "image/avif": "avif",
-    "image/jp2": "jp2",
-    "image/x-adobe-dng": "dng"
-  };
   let results = [];
   for (let i = 0; i < photos.length; i++) {
     const photo = photos[i];
@@ -287,18 +287,20 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
     const mimeType = (photo.type || "").toLowerCase();
     const hasMimeType = mimeType.length > 0;
     const isImageMime = mimeType.startsWith("image/");
-    const hasKnownExt = extension in mimeByExt;
-    const isValidImage = isImageMime || (!hasMimeType && hasKnownExt);
+    const hasKnownExt = extension in MIME_BY_EXT;
+    const hasKnownMime = mimeType in EXT_BY_MIME;
+    const isValidImage = isImageMime
+      ? (hasKnownMime || hasKnownExt)
+      : (!hasMimeType && hasKnownExt);
     if (!isValidImage) {
       results.push(`<span style=\"color:red\">Only image files are allowed (${photo.name || "unnamed file"})</span>`);
       continue;
     }
-    const hasKnownMime = mimeType in extByMime;
     const contentType = hasKnownMime
       ? mimeType
-      : (hasKnownExt ? mimeByExt[extension] : "");
+      : (hasKnownExt ? MIME_BY_EXT[extension] : "");
     const safeExtension = hasKnownMime
-      ? extByMime[mimeType]
+      ? EXT_BY_MIME[mimeType]
       : (hasKnownExt ? extension : "");
     if (!contentType || !safeExtension) {
       results.push(`<span style=\"color:red\">Unsupported image format (${photo.name || "unnamed file"})</span>`);
