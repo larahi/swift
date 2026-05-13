@@ -79,6 +79,7 @@
 						<input type="file" name="photo" id="photo" accept="image/*" multiple required />
 						<br><br>
 						<button type="submit">Upload</button>
+						<a href="https://drive.google.com/drive/folders/1Ja7ZdS6nWaGLrI_7kuXifEVoXrRqvJ92?usp=drive_link" class="popup-action drive-folder-link" target="_blank" rel="noopener noreferrer">Open Shared Google Drive Folder</a>
 						<div id="uploadMsg" style="margin-top:15px"></div>
 					</form>
 				</section>
@@ -134,46 +135,22 @@ function showLoginPrompt() {
 }
 if(sessionStorage.getItem("_loginsite") !== "OK") showLoginPrompt();
 
-function showTab(tabId) {
-	["tab-map","tab-upload"].forEach(id => {
-		const tab = document.getElementById(id);
-		tab.classList.remove("active");
-		tab.setAttribute("aria-selected", "false");
-	});
-	["tabcontent-map","tabcontent-upload"].forEach(id => {
-		document.getElementById(id).classList.remove("active");
-	});
-	const activeTab = document.getElementById(tabId);
-	activeTab.classList.add("active");
-	activeTab.setAttribute("aria-selected", "true");
-	if(tabId === "tab-map") document.getElementById("tabcontent-map").classList.add("active");
-	if(tabId === "tab-upload") document.getElementById("tabcontent-upload").classList.add("active");
+let colonyMap = null;
+let colonyMarkerGroup = null;
+let hasMapResizeListener = false;
+const MAP_BOUNDS_PADDING = [18, 18];
+const mapContainer = document.getElementById("map");
+
+function refreshMapLayout() {
+	if (!colonyMap) return;
+	requestAnimationFrame(() => colonyMap.invalidateSize());
 }
-document.querySelectorAll(".tabs .tab").forEach(tab => {
-	tab.addEventListener("click", () => showTab(tab.id));
-});
-// Set date to today by default
-const dateInput = document.getElementById("date");
-if (dateInput) {
-	const today = new Date().toISOString().slice(0, 10);
-	dateInput.value = today;
-}
-const typeInput = document.getElementById("type");
-const incubChoiceWrap = document.getElementById("incubChoiceWrap");
-const incubChoiceInput = document.getElementById("incubChoice");
-function syncIncubFields() {
-	const showIncub = typeInput && (typeInput.value === "incub");
-	if (!incubChoiceWrap || !incubChoiceInput) return;
-	incubChoiceWrap.style.display = showIncub ? "block" : "none";
-	incubChoiceInput.required = showIncub;
-}
-if (typeInput) {
-	typeInput.addEventListener("change", syncIncubFields);
-	syncIncubFields();
-}
-// Map logic (full colony set and colors)
-if(document.getElementById("map")) {
+
+function initMapIfNeeded() {
+	if (!mapContainer || colonyMap) return;
+
 	const map = L.map('map', { center: [47.1, 7.95], zoom: 8 });
+	colonyMap = map;
 	L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
 		attribution: '&copy; OpenStreetMap &copy; CartoDB', maxZoom: 18
 	}).addTo(map);
@@ -189,8 +166,11 @@ if(document.getElementById("map")) {
 		return d;
 	};
 	legend.addTo(map);
+	colonyMarkerGroup = L.featureGroup().addTo(map);
 	function marker(lat, lng, color, fillColor, radius, label) {
-		L.circleMarker([lat, lng], { color, fillColor, fillOpacity: 0.9, radius, weight: 2 }).addTo(map).bindPopup(label);
+		L.circleMarker([lat, lng], { color, fillColor, fillOpacity: 0.9, radius, weight: 2 })
+			.addTo(colonyMarkerGroup)
+			.bindPopup(label);
 	}
 	// Blue series (Soundbox A)
 	const blue = '#1565C0', blueFill = '#1976D2';
@@ -227,6 +207,57 @@ if(document.getElementById("map")) {
 		[47.3782,8.5372,'Zurich – Fraumünster'],
 		[47.2106, 7.5329,'Solothurn – Baselgate'],
 	].forEach(([lat,lng,label]) => marker(lat, lng, '#999', 'lightgrey', 4, label));
+
+	if (colonyMarkerGroup.getLayers().length > 0) {
+		map.fitBounds(colonyMarkerGroup.getBounds(), { padding: MAP_BOUNDS_PADDING });
+	}
+	if (!hasMapResizeListener) {
+		window.addEventListener("resize", refreshMapLayout);
+		hasMapResizeListener = true;
+	}
+	refreshMapLayout();
+}
+
+function showTab(tabId) {
+	["tab-map","tab-upload"].forEach(id => {
+		const tab = document.getElementById(id);
+		tab.classList.remove("active");
+		tab.setAttribute("aria-selected", "false");
+	});
+	["tabcontent-map","tabcontent-upload"].forEach(id => {
+		document.getElementById(id).classList.remove("active");
+	});
+	const activeTab = document.getElementById(tabId);
+	activeTab.classList.add("active");
+	activeTab.setAttribute("aria-selected", "true");
+	if(tabId === "tab-map") {
+		document.getElementById("tabcontent-map").classList.add("active");
+		initMapIfNeeded();
+		refreshMapLayout();
+	}
+	if(tabId === "tab-upload") document.getElementById("tabcontent-upload").classList.add("active");
+}
+document.querySelectorAll(".tabs .tab").forEach(tab => {
+	tab.addEventListener("click", () => showTab(tab.id));
+});
+// Set date to today by default
+const dateInput = document.getElementById("date");
+if (dateInput) {
+	const today = new Date().toISOString().slice(0, 10);
+	dateInput.value = today;
+}
+const typeInput = document.getElementById("type");
+const incubChoiceWrap = document.getElementById("incubChoiceWrap");
+const incubChoiceInput = document.getElementById("incubChoice");
+function syncIncubFields() {
+	const showIncub = typeInput && (typeInput.value === "incub");
+	if (!incubChoiceWrap || !incubChoiceInput) return;
+	incubChoiceWrap.style.display = showIncub ? "block" : "none";
+	incubChoiceInput.required = showIncub;
+}
+if (typeInput) {
+	typeInput.addEventListener("change", syncIncubFields);
+	syncIncubFields();
 }
 // Google Drive upload integration (multi-photo)
 const UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwn8A7Nj3Cb3WYjU24swsRDw1DINhv_6MqLrXjEzMaVDl-Mgs9_pbXw95og3fElKNhu/exec';
