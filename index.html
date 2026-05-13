@@ -29,14 +29,14 @@
 		</header>
 		<nav id="nav" class="keep-visible-on-mobile">
 			<div class="tabs">
-				<button type="button" class="tab active" id="tab-map" aria-controls="tabcontent-map" aria-selected="true">Colony Map</button>
-				<button type="button" class="tab" id="tab-upload" aria-controls="tabcontent-upload" aria-selected="false">Upload Data</button>
+				<button type="button" class="tab active" id="tab-upload" aria-controls="tabcontent-upload" aria-selected="true">Upload Data</button>
+				<button type="button" class="tab" id="tab-map" aria-controls="tabcontent-map" aria-selected="false">Colony Map</button>
 			</div>
 		</nav>
 		<!-- Main -->
 		<div id="main">
 			<!-- Colony Map Tab -->
-			<div class="tabcontent active" id="tabcontent-map">
+			<div class="tabcontent" id="tabcontent-map">
 				<section class="post">
 					<header class="major">
 						<h1>Swift Colony Map</h1>
@@ -47,7 +47,7 @@
 				</section>
 			</div>
 			<!-- Upload Data Tab -->
-			<div class="tabcontent" id="tabcontent-upload">
+			<div class="tabcontent active" id="tabcontent-upload">
 				<section class="post">
 					<header class="major">
 						<h1>Upload Colony Data Photo</h1>
@@ -88,8 +88,8 @@
 						<label><b>Date:</b></label>
 						<input type="date" name="date" id="date" required>
 						<br><br>
-						<label><b>Photo(s) (.jpg):</b></label>
-						<input type="file" name="photo" id="photo" accept="image/jpeg" multiple required />
+						<label><b>Photo(s):</b></label>
+						<input type="file" name="photo" id="photo" accept="image/*" multiple required />
 						<br><br>
 						<button type="submit">Upload</button>
 						<div id="uploadMsg" style="margin-top:15px"></div>
@@ -234,6 +234,35 @@ if(document.getElementById("map")) {
 const UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwn8A7Nj3Cb3WYjU24swsRDw1DINhv_6MqLrXjEzMaVDl-Mgs9_pbXw95og3fElKNhu/exec';
 const CATEGORY_INCUB = "Incub";
 const CATEGORY_DEFAULT = "Default";
+const MIME_BY_EXT = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+  gif: "image/gif",
+  bmp: "image/bmp",
+  heic: "image/heic",
+  heif: "image/heif",
+  tif: "image/tiff",
+  tiff: "image/tiff",
+  avif: "image/avif",
+  jp2: "image/jp2",
+  j2k: "image/jp2",
+  dng: "image/x-adobe-dng"
+};
+const EXT_BY_MIME = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+  "image/bmp": "bmp",
+  "image/heic": "heic",
+  "image/heif": "heif",
+  "image/tiff": "tiff",
+  "image/avif": "avif",
+  "image/jp2": "jp2",
+  "image/x-adobe-dng": "dng"
+};
 document.getElementById("uploadForm").addEventListener("submit", async function(e){
   e.preventDefault();
   const msg = document.getElementById("uploadMsg");
@@ -249,12 +278,32 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
   }
   const date = form.date.value;
   const photos = form.photo.files;
-  if (!photos.length) { msg.textContent = "Please select at least one .jpg file."; return; }
+  if (!photos.length) { msg.textContent = "Please select at least one photo file."; return; }
   let results = [];
   for (let i = 0; i < photos.length; i++) {
     const photo = photos[i];
-    if (!/\.(jpe?g)$/i.test(photo.name)) {
-      results.push(`<span style=\"color:red\">Only .jpg files allowed (${photo.name})</span>`);
+    const nameMatch = (photo.name || "").match(/\.([a-z][a-z0-9]*)$/i);
+    const extension = nameMatch ? nameMatch[1].toLowerCase() : "";
+    const mimeType = (photo.type || "").toLowerCase();
+    const hasMimeType = mimeType.length > 0;
+    const isImageMime = mimeType.startsWith("image/");
+    const hasKnownExt = extension in MIME_BY_EXT;
+    const hasKnownMime = mimeType in EXT_BY_MIME;
+    const isValidImage = isImageMime
+      ? (hasKnownMime || hasKnownExt)
+      : (!hasMimeType && hasKnownExt);
+    if (!isValidImage) {
+      results.push(`<span style=\"color:red\">Only image files are allowed (${photo.name || "unnamed file"})</span>`);
+      continue;
+    }
+    const contentType = hasKnownMime
+      ? mimeType
+      : (hasKnownExt ? MIME_BY_EXT[extension] : "");
+    const safeExtension = hasKnownMime
+      ? EXT_BY_MIME[mimeType]
+      : (hasKnownExt ? extension : "");
+    if (!contentType || !safeExtension) {
+      results.push(`<span style=\"color:red\">Unsupported image format (${photo.name || "unnamed file"})</span>`);
       continue;
     }
     let base64 = await new Promise((res, rej) => {
@@ -266,8 +315,8 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
     const num = i + 1;
     const normalizedDate = date.replace(/-/g,'');
     const fileName = isIncubUpload
-      ? `Incub_${colony}_${normalizedDate}_${incubChoice}_${num}.jpg`
-      : `${colony}_${type}_${normalizedDate}_${num}.jpg`;
+      ? `Incub_${colony}_${normalizedDate}_${incubChoice}_${num}.${safeExtension}`
+      : `${colony}_${type}_${normalizedDate}_${num}.${safeExtension}`;
     const data = {
       colony,
       type,
@@ -275,7 +324,7 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
       date,
       fileName: fileName,
       file: base64,
-      contentType: 'image/jpeg'
+      contentType: contentType
     };
     if (isIncubUpload) data.incubType = incubChoice;
     try {
