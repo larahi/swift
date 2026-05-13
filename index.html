@@ -232,6 +232,9 @@ if(document.getElementById("map")) {
 }
 // Google Drive upload integration (multi-photo)
 const UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwn8A7Nj3Cb3WYjU24swsRDw1DINhv_6MqLrXjEzMaVDl-Mgs9_pbXw95og3fElKNhu/exec';
+const INCUB_DEFAULT_CHOICE = "egg";
+const CATEGORY_INCUB = "Incub";
+const CATEGORY_DEFAULT = "Default";
 document.getElementById("uploadForm").addEventListener("submit", async function(e){
   e.preventDefault();
   const msg = document.getElementById("uploadMsg");
@@ -239,7 +242,7 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
   const form = e.target;
   const colony = form.colony.value;
   const type = form.type.value;
-  const incubChoice = (form.incubChoice && form.incubChoice.value) ? form.incubChoice.value : "egg";
+  const incubChoice = (form.incubChoice && form.incubChoice.value) ? form.incubChoice.value : INCUB_DEFAULT_CHOICE;
   const date = form.date.value;
   const photos = form.photo.files;
   if (!photos.length) { msg.textContent = "Please select at least one .jpg file."; return; }
@@ -265,7 +268,7 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
     const data = {
       colony,
       type: isIncub ? incubChoice : type,
-      category: isIncub ? "Incub" : "Default",
+      category: isIncub ? CATEGORY_INCUB : CATEGORY_DEFAULT,
       date,
       fileName: fileName,
       file: base64,
