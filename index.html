@@ -38,7 +38,7 @@
 				<section class="post">
 					<header class="major">
 						<h1>Upload Colony Data Photo</h1>
-						<p>Select colony info and photo(s). Files are placed into Google Drive in the correct colony folder, no login required. <br><b>Filenames</b> will be auto-generated using your form inputs and sequential numbers.</p>
+						<p>Select colony info and photo(s). Files are placed into Google Drive in the correct colony folder, no login required. <br><b>Filenames</b> will be auto-generated using your form inputs and seq[...]</p>
 					</header>
 					<form id="uploadForm" style="max-width: 475px; margin:0 auto;">
 						<label><b>Colony:</b></label>
@@ -60,14 +60,15 @@
 							<option value="egg-nest">Egg-nest</option>
 							<option value="nestling">Nestling</option>
 							<option value="adults">Adults</option>
-							<option value="incub_A72">Incub Nest A72</option>
+							<option value="incub">Incub</option>
 						</select>
-						<div id="incub_A72ChoiceWrap" style="display:none;">
-							<label><b>Egg order:</b></label>
-							<select name="incub_A72Choice" id="incub_A72Choice">
-								<option value="x">eggX</option>
-								<option value="y">eggY</option>
-								<option value="z">eggZ</option>
+						<div id="incubChoiceWrap" style="display:none;">
+							<label><b>Incub Type:</b></label>
+							<select name="incubChoice" id="incubChoice">
+								<option value="egg">Egg</option>
+								<option value="x">x</option>
+								<option value="y">y</option>
+								<option value="z">z</option>
 							</select>
 						</div>
 						<br><br>
@@ -161,10 +162,10 @@ const typeInput = document.getElementById("type");
 const incubChoiceWrap = document.getElementById("incubChoiceWrap");
 const incubChoiceInput = document.getElementById("incubChoice");
 function syncIncubFields() {
-	const isIncub = typeInput && typeInput.value === "incub";
+	const showIncub = typeInput && (typeInput.value === "incub" || typeInput.value === "egg-nest");
 	if (!incubChoiceWrap || !incubChoiceInput) return;
-	incubChoiceWrap.style.display = isIncub ? "block" : "none";
-	incubChoiceInput.required = isIncub;
+	incubChoiceWrap.style.display = showIncub ? "block" : "none";
+	incubChoiceInput.required = showIncub;
 }
 if (typeInput) {
 	typeInput.addEventListener("change", syncIncubFields);
@@ -267,7 +268,7 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
   const form = e.target;
   const colony = form.colony.value;
   const type = form.type.value;
-  const isIncubUpload = type === "incub";
+  const isIncubUpload = type === "incub" || type === "egg-nest";
   const incubChoice = (form.incubChoice && form.incubChoice.value) ? form.incubChoice.value : "";
   if (isIncubUpload && !incubChoice) {
     msg.textContent = "Please select an Incub type.";
