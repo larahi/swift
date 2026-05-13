@@ -250,7 +250,7 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
   const date = form.date.value;
   const photos = form.photo.files;
   if (!photos.length) { msg.textContent = "Please select at least one photo file."; return; }
-  const fallbackMimeByExt = {
+  const mimeByExt = {
     jpg: "image/jpeg",
     jpeg: "image/jpeg",
     png: "image/png",
@@ -263,19 +263,35 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
     tiff: "image/tiff",
     avif: "image/avif"
   };
+  const extByMime = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+    "image/gif": "gif",
+    "image/bmp": "bmp",
+    "image/heic": "heic",
+    "image/heif": "heif",
+    "image/tiff": "tiff",
+    "image/avif": "avif"
+  };
   let results = [];
   for (let i = 0; i < photos.length; i++) {
     const photo = photos[i];
     const nameMatch = (photo.name || "").match(/\.([a-z0-9]+)$/i);
-    const extension = nameMatch ? nameMatch[1].toLowerCase() : "";
+    const extension = nameMatch ? nameMatch[1].toLowerCase().replace(/[^a-z0-9]/g, "") : "";
     const mimeType = (photo.type || "").toLowerCase();
     const isImageMime = mimeType.startsWith("image/");
-    if (!isImageMime && !(extension in fallbackMimeByExt)) {
+    const hasKnownExt = extension in mimeByExt;
+    if (!isImageMime && !hasKnownExt) {
       results.push(`<span style=\"color:red\">Only image files are allowed (${photo.name || "unnamed file"})</span>`);
       continue;
     }
-    const contentType = isImageMime ? mimeType : (fallbackMimeByExt[extension] || "image/jpeg");
-    const safeExtension = extension || (contentType.split("/")[1] || "jpg");
+    const contentType = isImageMime ? mimeType : mimeByExt[extension];
+    const safeExtension = extension || extByMime[contentType];
+    if (!contentType || !safeExtension) {
+      results.push(`<span style=\"color:red\">Could not determine file type for ${photo.name || "unnamed file"}</span>`);
+      continue;
+    }
     let base64 = await new Promise((res, rej) => {
       const r = new FileReader();
       r.onload = () => res(r.result.split(",")[1]);
