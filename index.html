@@ -232,7 +232,6 @@ if(document.getElementById("map")) {
 }
 // Google Drive upload integration (multi-photo)
 const UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwn8A7Nj3Cb3WYjU24swsRDw1DINhv_6MqLrXjEzMaVDl-Mgs9_pbXw95og3fElKNhu/exec';
-const INCUB_DEFAULT_CHOICE = "egg";
 const CATEGORY_INCUB = "Incub";
 const CATEGORY_DEFAULT = "Default";
 document.getElementById("uploadForm").addEventListener("submit", async function(e){
@@ -266,7 +265,7 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
     });
     const num = i + 1;
     const normalizedDate = date.replace(/-/g,'');
-    const selectedIncubChoice = isIncubType ? incubChoice : INCUB_DEFAULT_CHOICE;
+    const selectedIncubChoice = incubChoice;
     const fileName = isIncubType
       ? `Incub_${colony}_${normalizedDate}_${selectedIncubChoice}_${num}.jpg`
       : `${colony}_${type}_${normalizedDate}_${num}.jpg`;
