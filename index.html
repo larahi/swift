@@ -277,7 +277,7 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
   let results = [];
   for (let i = 0; i < photos.length; i++) {
     const photo = photos[i];
-    const nameMatch = (photo.name || "").match(/\.([a-z0-9]+)$/i);
+    const nameMatch = (photo.name || "").match(/\.([a-z]+)$/i);
     const extension = nameMatch ? nameMatch[1].toLowerCase() : "";
     const mimeType = (photo.type || "").toLowerCase();
     const isImageMime = mimeType.startsWith("image/");
@@ -288,7 +288,9 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
     }
     const hasKnownMime = mimeType in extByMime;
     const contentType = isImageMime ? mimeType : mimeByExt[extension];
-    const safeExtension = extension || (hasKnownMime ? extByMime[mimeType] : "");
+    const safeExtension = isImageMime
+      ? (hasKnownMime ? extByMime[mimeType] : extension)
+      : extension;
     if (!contentType) {
       results.push(`<span style=\"color:red\">Only image files are allowed (${photo.name || "unnamed file"})</span>`);
       continue;
