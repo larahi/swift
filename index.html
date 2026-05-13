@@ -282,12 +282,14 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
   let results = [];
   for (let i = 0; i < photos.length; i++) {
     const photo = photos[i];
-    const nameMatch = (photo.name || "").match(/\.([a-z0-9]+)$/i);
+    const nameMatch = (photo.name || "").match(/\.([a-z][a-z0-9]*)$/i);
     const extension = nameMatch ? nameMatch[1].toLowerCase() : "";
     const mimeType = (photo.type || "").toLowerCase();
+    const hasMimeType = mimeType.length > 0;
     const isImageMime = mimeType.startsWith("image/");
     const hasKnownExt = extension in mimeByExt;
-    if (!isImageMime && !hasKnownExt) {
+    const isValidImage = isImageMime || (!hasMimeType && hasKnownExt);
+    if (!isValidImage) {
       results.push(`<span style=\"color:red\">Only image files are allowed (${photo.name || "unnamed file"})</span>`);
       continue;
     }
@@ -298,11 +300,7 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
     const safeExtension = hasKnownMime
       ? extByMime[mimeType]
       : (hasKnownExt ? extension : "");
-    if (!contentType) {
-      results.push(`<span style=\"color:red\">Only image files are allowed (${photo.name || "unnamed file"})</span>`);
-      continue;
-    }
-    if (!safeExtension) {
+    if (!contentType || !safeExtension) {
       results.push(`<span style=\"color:red\">Unsupported image format (${photo.name || "unnamed file"})</span>`);
       continue;
     }
