@@ -241,9 +241,9 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
   const form = e.target;
   const colony = form.colony.value;
   const type = form.type.value;
-  const isIncubType = type === "incub";
+  const isIncubUpload = type === "incub";
   const incubChoice = (form.incubChoice && form.incubChoice.value) ? form.incubChoice.value : "";
-  if (isIncubType && !incubChoice) {
+  if (isIncubUpload && !incubChoice) {
     msg.textContent = "Please select an Incub type.";
     return;
   }
@@ -265,19 +265,19 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
     });
     const num = i + 1;
     const normalizedDate = date.replace(/-/g,'');
-    const fileName = isIncubType
+    const fileName = isIncubUpload
       ? `Incub_${colony}_${normalizedDate}_${incubChoice}_${num}.jpg`
       : `${colony}_${type}_${normalizedDate}_${num}.jpg`;
     const data = {
       colony,
       type,
-      category: isIncubType ? CATEGORY_INCUB : CATEGORY_DEFAULT,
+      category: isIncubUpload ? CATEGORY_INCUB : CATEGORY_DEFAULT,
       date,
       fileName: fileName,
       file: base64,
       contentType: 'image/jpeg'
     };
-    if (isIncubType) data.incubType = incubChoice;
+    if (isIncubUpload) data.incubType = incubChoice;
     try {
       const resp = await fetch(UPLOAD_ENDPOINT, {
         method: "POST",
