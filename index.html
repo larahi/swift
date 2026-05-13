@@ -162,7 +162,7 @@ const typeInput = document.getElementById("type");
 const incubChoiceWrap = document.getElementById("incubChoiceWrap");
 const incubChoiceInput = document.getElementById("incubChoice");
 function syncIncubFields() {
-	const showIncub = typeInput && (typeInput.value === "incub" || typeInput.value === "egg-nest");
+	const showIncub = typeInput && (typeInput.value === "incub");
 	if (!incubChoiceWrap || !incubChoiceInput) return;
 	incubChoiceWrap.style.display = showIncub ? "block" : "none";
 	incubChoiceInput.required = showIncub;
@@ -268,7 +268,7 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
   const form = e.target;
   const colony = form.colony.value;
   const type = form.type.value;
-  const isIncubUpload = type === "incub" || type === "egg-nest";
+  const isIncubUpload = type === "incub";
   const incubChoice = (form.incubChoice && form.incubChoice.value) ? form.incubChoice.value : "";
   if (isIncubUpload && !incubChoice) {
     msg.textContent = "Please select an Incub type.";
