@@ -271,13 +271,13 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
     const data = {
       colony,
       type,
-      incubType: isIncubType ? incubChoice : "",
       category: isIncubType ? CATEGORY_INCUB : CATEGORY_DEFAULT,
       date,
       fileName: fileName,
       file: base64,
       contentType: 'image/jpeg'
     };
+    if (isIncubType) data.incubType = incubChoice;
     try {
       const resp = await fetch(UPLOAD_ENDPOINT, {
         method: "POST",
