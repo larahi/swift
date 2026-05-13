@@ -157,7 +157,7 @@ document.querySelectorAll(".tabs .tab").forEach(tab => {
 // Set date to today by default
 const dateInput = document.getElementById("date");
 if (dateInput) {
-	const today = new Date().toISOString().substr(0, 10);
+	const today = new Date().toISOString().slice(0, 10);
 	dateInput.value = today;
 }
 const typeInput = document.getElementById("type");
