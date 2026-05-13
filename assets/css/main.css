@@ -300,6 +300,9 @@ h4 {
   background: #e3f1ff;
   color: #124e8c !important;
 }
+.drive-folder-link {
+  margin-top: 0.65em;
+}
 
 /* Footer and Copyright */
 #footer {
