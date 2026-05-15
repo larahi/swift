@@ -38,7 +38,7 @@
 				<section class="post">
 					<header class="major">
 						<h1>Upload Colony Data Photo</h1>
-						<p>Select colony info and photo(s). Files are placed into Google Drive in the correct colony folder, no login required. <br><b>Filenames</b> will be auto-generated using your form inputs and sequence number.</p>
+						<p>Select colony info and photo(s). Files are placed into Google Drive in the correct colony folder, no login required. <br><b>Filenames</b> will be auto-generated using your form inputs and seq[...]</p>
 					</header>
 					<form id="uploadForm" style="max-width: 475px; margin:0 auto;">
 						<label><b>Colony:</b></label>
@@ -79,17 +79,7 @@
 						<input type="file" name="photo" id="photo" accept="image/*" multiple required />
 						<br><br>
 						<button type="submit">Upload</button>
-						<a href="https://drive.google.com/drive/folders/1Ja7ZdS6nWaGLrI_7kuXifEVoXrRqvJ92?usp=drive_link" class="popup-action drive-folder-link" target="_blank" rel="noopener noreferrer">Open Shared Google Drive</a>
-						<!-- Progress bar start -->
-						<div id="uploadProgressContainer" style="display:none;margin-bottom:12px;">
-						  <div style="position:relative;width:100%;background:#eee;border-radius:6px;height:20px;">
-						    <div id="uploadProgressBar"
-						         style="width:0%;background:#1976D2;height:20px;border-radius:6px;text-align:center;color:#fff;font-size:12px;line-height:20px;">
-						      0%
-						    </div>
-						  </div>
-						</div>
-						<!-- Progress bar end -->
+						<a href="https://drive.google.com/drive/folders/1Ja7ZdS6nWaGLrI_7kuXifEVoXrRqvJ92?usp=drive_link" class="popup-action drive-folder-link" target="_blank" rel="noopener noreferrer">Open Shared Google Drive Folder</a>
 						<div id="uploadMsg" style="margin-top:15px"></div>
 					</form>
 				</section>
@@ -305,13 +295,7 @@ const EXT_BY_MIME = {
 document.getElementById("uploadForm").addEventListener("submit", async function(e){
   e.preventDefault();
   const msg = document.getElementById("uploadMsg");
-  const progressBarContainer = document.getElementById("uploadProgressContainer");
-  const progressBar = document.getElementById("uploadProgressBar");
   msg.textContent = "Uploading...";
-  progressBarContainer.style.display = "block";
-  progressBar.style.width = "0%";
-  progressBar.textContent = "0%";
-
   const form = e.target;
   const colony = form.colony.value;
   const type = form.type.value;
@@ -319,22 +303,13 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
   const incubChoice = (form.incubChoice && form.incubChoice.value) ? form.incubChoice.value : "";
   if (isIncubUpload && !incubChoice) {
     msg.textContent = "Please select an Incub type.";
-    progressBarContainer.style.display = "none";
     return;
   }
   const date = form.date.value;
   const photos = form.photo.files;
-  if (!photos.length) { 
-    msg.textContent = "Please select at least one photo file."; 
-    progressBarContainer.style.display = "none";
-    return; 
-  }
-
-  const totalFiles = photos.length;
-  let filesDone = 0;
+  if (!photos.length) { msg.textContent = "Please select at least one photo file."; return; }
   let results = [];
-
-  for (let i = 0; i < totalFiles; i++) {
+  for (let i = 0; i < photos.length; i++) {
     const photo = photos[i];
     const nameMatch = (photo.name || "").match(/\.([a-z][a-z0-9]*)$/i);
     const extension = nameMatch ? nameMatch[1].toLowerCase() : "";
@@ -348,10 +323,6 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
       : (!hasMimeType && hasKnownExt);
     if (!isValidImage) {
       results.push(`<span style=\"color:red\">Only image files are allowed (${photo.name || "unnamed file"})</span>`);
-      filesDone++;
-      let percent = Math.round((filesDone/totalFiles)*100);
-      progressBar.style.width = percent + "%";
-      progressBar.textContent = percent + "%";
       continue;
     }
     const contentType = hasKnownMime
@@ -362,10 +333,6 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
       : (hasKnownExt ? extension : "");
     if (!contentType || !safeExtension) {
       results.push(`<span style=\"color:red\">Unsupported image format (${photo.name || "unnamed file"})</span>`);
-      filesDone++;
-      let percent = Math.round((filesDone/totalFiles)*100);
-      progressBar.style.width = percent + "%";
-      progressBar.textContent = percent + "%";
       continue;
     }
     let base64 = await new Promise((res, rej) => {
@@ -374,7 +341,6 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
       r.onerror = rej;
       r.readAsDataURL(photo);
     });
-
     const num = i + 1;
     const normalizedDate = date.replace(/-/g,'');
     const fileName = isIncubUpload
@@ -390,50 +356,22 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
       contentType: contentType
     };
     if (isIncubUpload) data.incubType = incubChoice;
-
-    let response;
-    // -- AJAX upload (with progress) --
-    await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", UPLOAD_ENDPOINT);
-      xhr.setRequestHeader("Accept", "application/json");
-      xhr.upload.onprogress = function(event) {
-        if (event.lengthComputable) {
-          // Show file progress chunk in overall progress
-          let currentFileProgress = event.loaded / event.total;
-          let overall = (filesDone + currentFileProgress) / totalFiles;
-          let percent = Math.round(overall * 100);
-          progressBar.style.width = percent + "%";
-          progressBar.textContent = percent + "%";
-        }
-      };
-      xhr.onload = function() {
-        filesDone++;
-        let percent = Math.round((filesDone/totalFiles)*100);
-        progressBar.style.width = percent + "%";
-        progressBar.textContent = percent + "%";
-        try {
-          response = JSON.parse(xhr.responseText);
-          resolve();
-        } catch(e) { reject(e); }
-      };
-      xhr.onerror = function() {
-        filesDone++;
-        let percent = Math.round((filesDone/totalFiles)*100);
-        progressBar.style.width = percent + "%";
-        progressBar.textContent = percent + "%";
-        reject(xhr.statusText);
-      };
-      xhr.send(new URLSearchParams(data));
-    });
-
-    if (response && response.success) {
-      results.push(`<span style=\"color:green\">Upload succeeded: <a href=\"${response.url}\" target=\"_blank\">${fileName}</a></span>`);
-    } else {
-      results.push(`<span style=\"color:red\">${fileName}: ${(response && response.error) ? response.error : "Upload failed"}</span>`);
+    try {
+      const resp = await fetch(UPLOAD_ENDPOINT, {
+        method: "POST",
+        body: new URLSearchParams(data),
+        headers: { "Accept": "application/json" }
+      });
+      const response = await resp.json();
+      if (response.success) {
+        results.push(`<span style=\"color:green\">Upload succeeded: <a href=\"${response.url}\" target=\"_blank\">${fileName}</a></span>`);
+      } else {
+        results.push(`<span style=\"color:red\">${fileName}: ${response.error || "Upload failed"}</span>`);
+      }
+    } catch (err) {
+      results.push(`<span style=\"color:red\">${fileName}: Upload error: ${err}</span>`);
     }
   }
-  progressBarContainer.style.display = "none";
   msg.innerHTML = results.join("<br>");
 });
 </script>
