@@ -1,368 +1,362 @@
 <!DOCTYPE HTML>
-<!--
-
--->
-<html>
+<html lang="en">
 <head>
-	<title>Alpine Swift Fieldwork</title>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-	<link rel="stylesheet" href="assets/css/main.css" />
-	<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-	<!-- Leaflet -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
-	<style>
-		#map { margin-bottom: 2em; }
-		.legend { background: white; padding: 7px 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 11px; line-height: 1.8; color: #333; }
-		.legend b { display: block; margin-bottom: 2px; font-size: 11px; }
-		.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
-	</style>
+  <title>Alpine Swift Fieldwork</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    #map { margin-bottom: 2em; }
+    .legend { background: white; padding: 7px 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 11px; line-height: 1.8; color: #333; }
+    .legend b { display: block; margin-bottom: 2px; font-size: 11px; }
+    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+    .tab[aria-selected="true"], .tab.active { background: #e6e6e6; }
+    .tabcontent { display: none; }
+    .tabcontent.active { display: block; }
+    /* Basic login prompt style */
+    .site-login-overlay {
+      position: fixed; top: 0; left: 0; z-index: 9999; width: 100vw; height: 100vh;
+      background: rgba(255,255,255,0.94); display: flex; align-items: center; justify-content: center;
+    }
+    .site-login-card {
+      background: #fff;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      border-radius: 10px;
+      padding: 2em 2em 1.2em 2em;
+      text-align: center;
+      min-width: 240px;
+      max-width: 95vw;
+    }
+    .site-login-input {
+      width: 70%; font-size: 1em; margin: 16px 0 8px 0; padding: 7px;
+      border: 1px solid #ccc; border-radius: 5px;
+    }
+    .site-login-button {
+      background: #1b5e20; color: white; border: none; border-radius: 5px; padding: 6px 24px; font-size: 0.96em; cursor: pointer;
+      margin-bottom: 7px;
+    }
+    .site-login-button:hover {
+      background: #388e3c;
+    }
+    .site-login-message { color: red; font-size: 1em; }
+  </style>
 </head>
 <body class="is-preload">
-	<!-- Wrapper -->
-	<div id="wrapper">
-		<!-- Header -->
-		<header id="header">
-			<a href="index.html" class="logo">Swift Data & Map</a>
-		</header>
-		<nav id="nav" class="keep-visible-on-mobile">
-			<div class="tabs">
-				<button type="button" class="tab active" id="tab-upload" aria-controls="tabcontent-upload" aria-selected="true">Upload Data</button>
-				<button type="button" class="tab" id="tab-map" aria-controls="tabcontent-map" aria-selected="false">Colony Map</button>
-			</div>
-		</nav>
-		<!-- Main -->
-		<div id="main">
-			<!-- Upload Data Tab -->
-			<div class="tabcontent active" id="tabcontent-upload">
-				<section class="post">
-					<header class="major">
-						<h1>Upload Colony Data Photo</h1>
-						<p>Select colony info and photo(s). Files are placed into Google Drive in the correct colony folder, no login required. <br><b>Filenames</b> will be auto-generated using your form inputs and seq[...]</p>
-					</header>
-					<form id="uploadForm" style="max-width: 475px; margin:0 auto;">
-						<label><b>Colony:</b></label>
-						<select name="colony" id="colony" required>
-							<option value="LVS">Baden (LVS)</option>
-							<option value="ST">Baden (ST)</option>
-							<option value="SK">Bienne (SK)</option>
-							<option value="KH">Langenthal (KH)</option>
-							<option value="KVS">Lenzburg (KVS)</option>
-							<option value="HK">Luzern (HK)</option>
-							<option value="RK">Seengen (RK)</option>
-							<option value="BT">Solothurn (BT)</option>
-							<option value="SV">St Gallen (SV)</option>
-							<option value="DT">Sursee (DT)</option>
-						</select>
-						<br><br>
-						<label><b>Data Type:</b></label>
-						<select name="type" id="type" required>
-							<option value="egg-nest">Egg-nest</option>
-							<option value="nestling">Nestling</option>
-							<option value="adults">Adults</option>
-							<option value="egg-size">Egg sizes</option>
-						</select>
-						<br><br>
-						<label><b>Date:</b></label>
-						<input type="date" name="date" id="date" required>
-						<br><br>
-						<label><b>Photo(s):</b></label>
-						<input type="file" name="photo" id="photo" accept="image/*" multiple required />
-						<br><br>
-						<button type="submit">Upload</button>
-						<a href="https://drive.google.com/drive/folders/1Ja7ZdS6nWaGLrI_7kuXifEVoXrRqvJ92?usp=drive_link" class="popup-action drive-folder-link" target="_blank" rel="noopener noreferrer">Open Shared Google Drive Folder</a>
-						<div id="uploadMsg" style="margin-top:15px"></div>
-					</form>
-				</section>
-			</div>
-			<!-- Colony Map Tab -->
-			<div class="tabcontent" id="tabcontent-map">
-				<section class="post">
-					<header class="major">
-						<h1>Swift Colony Map</h1>
-						<p>Interactive map of monitored colonies in Switzerland</p>
-					</header>
-					<!-- Map section -->
-					<div id="map"></div>
-				</section>
-			</div>
-		</div>
-		<footer id="footer"></footer>
-		<div id="copyright">
-			<ul><li>&copy; Swift Colony Monitoring</li><li>Field data portal</li></ul>
-		</div>
-	</div>
-	<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-	<script>
-const SITE_PASSWORD = "vowa8";
-function showLoginPrompt() {
-  const overlay = document.createElement("div");
-  overlay.className = "site-login-overlay";
-  overlay.innerHTML = `
-    <div class="site-login-card">
-      <h2>Protected site</h2>
-      <label for="sitepw">Enter password to continue:</label>
-      <input id="sitepw" class="site-login-input" type="password" autocomplete="current-password" aria-label="Password">
-      <button id="sitepw-submit" type="button" class="site-login-button">Continue</button>
-      <div id="pwmsg" class="site-login-message"></div>
+  <div id="wrapper">
+    <!-- Header -->
+    <header id="header">
+      <a href="index.html" class="logo">Swift Data &amp; Map</a>
+    </header>
+    <!-- Nav Tabs -->
+    <nav id="nav" class="keep-visible-on-mobile">
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab active" id="tab-upload"
+                aria-controls="tabcontent-upload" aria-selected="true" role="tab">Upload Data</button>
+        <button type="button" class="tab" id="tab-map"
+                aria-controls="tabcontent-map" aria-selected="false" role="tab">Colony Map</button>
+      </div>
+    </nav>
+    <!-- Main Content -->
+    <div id="main">
+      <!-- Upload Data Tab -->
+      <div class="tabcontent active" id="tabcontent-upload" role="tabpanel" aria-labelledby="tab-upload">
+        <section class="post">
+          <header class="major">
+            <h1>Upload Colony Data Photo</h1>
+            <p>
+              Select colony info and photo(s). Files are placed into Google Drive in the correct colony folder, no login required.<br>
+              <b>Filenames</b> will be auto-generated using your form inputs and sequential numbers.
+            </p>
+          </header>
+          <form id="uploadForm" style="max-width: 475px; margin:0 auto;">
+            <label for="colony"><b>Colony:</b></label>
+            <select name="colony" id="colony" required>
+              <option value="LVS">Baden (LVS)</option>
+              <option value="ST">Baden (ST)</option>
+              <option value="SK">Bienne (SK)</option>
+              <option value="KH">Langenthal (KH)</option>
+              <option value="KVS">Lenzburg (KVS)</option>
+              <option value="HK">Luzern (HK)</option>
+              <option value="RK">Seengen (RK)</option>
+              <option value="BT">Solothurn (BT)</option>
+              <option value="SV">St Gallen (SV)</option>
+              <option value="DT">Sursee (DT)</option>
+            </select>
+            <br><br>
+            <label for="type"><b>Data Type:</b></label>
+            <select name="type" id="type" required>
+              <option value="egg-nest">Egg-nest</option>
+              <option value="nestling">Nestling</option>
+              <option value="adults">Adults</option>
+              <option value="egg-size">Egg sizes</option>
+            </select>
+            <br><br>
+            <label for="date"><b>Date:</b></label>
+            <input type="date" name="date" id="date" required />
+            <br><br>
+            <label for="photo"><b>Photo(s):</b></label>
+            <input type="file" name="photo" id="photo" accept="image/*" multiple required />
+            <br><br>
+            <button type="submit">Upload</button>
+            <a href="https://drive.google.com/drive/folders/1Ja7ZdS6nWaGLrI_7kuXifEVoXrRqvJ92?usp=drive_link"
+               class="popup-action drive-folder-link" target="_blank" rel="noopener noreferrer"
+               style="margin-left:12px; font-size:0.98em;">Open Shared Google Drive Folder</a>
+            <div id="uploadMsg" style="margin-top:15px"></div>
+          </form>
+        </section>
+      </div>
+      <!-- Colony Map Tab -->
+      <div class="tabcontent" id="tabcontent-map" role="tabpanel" aria-labelledby="tab-map">
+        <section class="post">
+          <header class="major">
+            <h1>Swift Colony Map</h1>
+            <p>Interactive map of monitored colonies in Switzerland</p>
+          </header>
+          <div id="map" style="height: 380px; min-height: 320px;"></div>
+        </section>
+      </div>
     </div>
-  `;
-  document.body.appendChild(overlay);
-  window.loginGo = function() {
-    const v = (document.getElementById("sitepw").value||"");
-    if(v === SITE_PASSWORD) {
-      overlay.remove();
-      sessionStorage.setItem("_loginsite", "OK");
-    } else {
-      document.getElementById("pwmsg").textContent = "Incorrect password!";
-    }
-  };
-  const passwordInput = document.getElementById("sitepw");
-  passwordInput.focus();
-  passwordInput.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") loginGo();
-  });
-  document.getElementById("sitepw-submit").addEventListener("click", loginGo);
-}
-if(sessionStorage.getItem("_loginsite") !== "OK") showLoginPrompt();
-
-let colonyMap = null;
-let colonyMarkerGroup = null;
-let hasMapResizeListener = false;
-const MAP_BOUNDS_PADDING = [18, 18];
-const mapContainer = document.getElementById("map");
-
-function refreshMapLayout() {
-	if (!colonyMap) return;
-	requestAnimationFrame(() => colonyMap.invalidateSize());
-}
-
-function initMapIfNeeded() {
-	if (!mapContainer || colonyMap) return;
-
-	const map = L.map('map', { center: [47.1, 7.95], zoom: 8 });
-	colonyMap = map;
-	L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-		attribution: '&copy; OpenStreetMap &copy; CartoDB', maxZoom: 18
-	}).addTo(map);
-	const legend = L.control({ position: 'bottomleft' });
-	legend.onAdd = function() {
-		const d = L.DomUtil.create('div', 'legend');
-		d.innerHTML = `<b>Monitoring categories</b>
-			<div><span class="dot" style="background:#1b5e20"></span> Intensive monitoring</div>
-			<div><span class="dot" style="background:rgb(154,255,154);border:1px solid green"></span> Light monitoring, Vowa</div>
-			<div><span class="dot" style="background:orange"></span> Light monitoring, external</div>
-			<div><span class="dot" style="background:lightgrey;border:0.5px solid #999"></span> Other colonies</div> 
-			`;
-		return d;
-	};
-	legend.addTo(map);
-	colonyMarkerGroup = L.featureGroup().addTo(map);
-	function marker(lat, lng, color, fillColor, radius, label) {
-		L.circleMarker([lat, lng], { color, fillColor, fillOpacity: 0.9, radius, weight: 2 })
-			.addTo(colonyMarkerGroup)
-			.bindPopup(label);
-	}
-	// Green – Intensive monitoring
-	marker(47.141620082206416, 7.246590483600935, '#1b5e20', '#2e7d32', 8, 'Biel – Stadtkirche');
-	marker(47.20825118307239, 7.5347757595271885, '#1b5e20', '#2e7d32', 8, 'Solothurn – Bieltor');
-	marker(47.171324813063165, 8.109948909606452, '#1b5e20', '#2e7d32', 8, 'Sursee – Diebenturm');
-	// Vowa light monitoring (light green)
-	marker(47.05558239385242, 8.313739883573797, 'rgb(154,255,154)', 'rgb(154,255,154)', 8, 'Luzern – Hofkirche');
-	marker(47.32632226305706, 8.203265798701887, 'rgb(154,255,154)', 'rgb(154,255,154)', 8, 'Seengen – Ref. Kirche');
-	marker(47.38708793907311, 8.178625298940132, 'rgb(154,255,154)', 'rgb(154,255,154)', 8, 'Lenzburg – KV Schulhaus');
-	marker(47.410706800000, 9.369503500000, 'rgb(154,255,154)', 'rgb(154,255,154)', 8, 'St. Gallen – Sitterviadukt');
-	// Orange (external light monitoring)
-	marker(47.21218956208258, 7.789185510586733, 'darkorange', 'orange', 8, 'Langenthal');
-	marker(47.47339606672302, 8.30787303942517, 'darkorange', 'orange', 8, 'Baden – Stadtturm');
-	marker(47.47287755570178, 8.310833552428296, 'darkorange', 'orange', 8, 'Baden – Landvogteischloss');
-	// Gray (other)
-	[
-		[47.0566,7.6265,'Burgdorf – Ref. Kirche'],
-		[45.832,9.0312,'Chiasso – Colonia APUMEL'],
-		[47.3875, 8.1740,'Lenzburg – KV Schulhaus'],
-		[46.8065,7.1619,'Fribourg – Beauregard'],
-		[46.806,7.1608,'Fribourg – Au'],
-		[46.9481,7.4474,'Bern – Zytglogge'],
-		[47.0502,8.3093,'Luzern – Museggturm'],
-		[47.3769,8.5417,'Zurich – Grossmünster'],
-		[47.3782,8.5372,'Zurich – Fraumünster'],
-		[47.2106, 7.5329,'Solothurn – Baselgate'],
-	].forEach(([lat,lng,label]) => marker(lat, lng, '#999', 'lightgrey', 4, label));
-
-	if (colonyMarkerGroup.getLayers().length > 0) {
-		map.fitBounds(colonyMarkerGroup.getBounds(), { padding: MAP_BOUNDS_PADDING });
-	}
-	if (!hasMapResizeListener) {
-		window.addEventListener("resize", refreshMapLayout);
-		hasMapResizeListener = true;
-	}
-	refreshMapLayout();
-}
-
-function showTab(tabId) {
-	["tab-map","tab-upload"].forEach(id => {
-		const tab = document.getElementById(id);
-		tab.classList.remove("active");
-		tab.setAttribute("aria-selected", "false");
-	});
-	["tabcontent-map","tabcontent-upload"].forEach(id => {
-		document.getElementById(id).classList.remove("active");
-	});
-	const activeTab = document.getElementById(tabId);
-	activeTab.classList.add("active");
-	activeTab.setAttribute("aria-selected", "true");
-	if(tabId === "tab-map") {
-		document.getElementById("tabcontent-map").classList.add("active");
-		initMapIfNeeded();
-		refreshMapLayout();
-	}
-	if(tabId === "tab-upload") document.getElementById("tabcontent-upload").classList.add("active");
-}
-document.querySelectorAll(".tabs .tab").forEach(tab => {
-	tab.addEventListener("click", () => showTab(tab.id));
-});
-// Set date to today by default
-const dateInput = document.getElementById("date");
-if (dateInput) {
-	const today = new Date().toISOString().slice(0, 10);
-	dateInput.value = today;
-}
-const typeInput = document.getElementById("type");
-const incubChoiceWrap = document.getElementById("incubChoiceWrap");
-const incubChoiceInput = document.getElementById("incubChoice");
-function syncIncubFields() {
-	const showIncub = typeInput && (typeInput.value === "incub");
-	if (!incubChoiceWrap || !incubChoiceInput) return;
-	incubChoiceWrap.style.display = showIncub ? "block" : "none";
-	incubChoiceInput.required = showIncub;
-}
-if (typeInput) {
-	typeInput.addEventListener("change", syncIncubFields);
-	syncIncubFields();
-}
-// Google Drive upload integration (multi-photo)
-const UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwn8A7Nj3Cb3WYjU24swsRDw1DINhv_6MqLrXjEzMaVDl-Mgs9_pbXw95og3fElKNhu/exec';
-const CATEGORY_INCUB = "Incub";
-const CATEGORY_DEFAULT = "Default";
-const MIME_BY_EXT = {
-  jpg: "image/jpeg",
-  jpeg: "image/jpeg",
-  png: "image/png",
-  webp: "image/webp",
-  gif: "image/gif",
-  bmp: "image/bmp",
-  heic: "image/heic",
-  heif: "image/heif",
-  tif: "image/tiff",
-  tiff: "image/tiff",
-  avif: "image/avif",
-  jp2: "image/jp2",
-  j2k: "image/jp2",
-  dng: "image/x-adobe-dng"
-};
-const EXT_BY_MIME = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-  "image/gif": "gif",
-  "image/bmp": "bmp",
-  "image/heic": "heic",
-  "image/heif": "heif",
-  "image/tiff": "tiff",
-  "image/avif": "avif",
-  "image/jp2": "jp2",
-  "image/x-adobe-dng": "dng"
-};
-document.getElementById("uploadForm").addEventListener("submit", async function(e){
-  e.preventDefault();
-  const msg = document.getElementById("uploadMsg");
-  msg.textContent = "Uploading...";
-  const form = e.target;
-  const colony = form.colony.value;
-  const type = form.type.value;
-  const isIncubUpload = type === "incub";
-  const incubChoice = (form.incubChoice && form.incubChoice.value) ? form.incubChoice.value : "";
-  if (isIncubUpload && !incubChoice) {
-    msg.textContent = "Please select an Incub type.";
-    return;
-  }
-  const date = form.date.value;
-  const photos = form.photo.files;
-  if (!photos.length) { msg.textContent = "Please select at least one photo file."; return; }
-  let results = [];
-  for (let i = 0; i < photos.length; i++) {
-    const photo = photos[i];
-    const nameMatch = (photo.name || "").match(/\.([a-z][a-z0-9]*)$/i);
-    const extension = nameMatch ? nameMatch[1].toLowerCase() : "";
-    const mimeType = (photo.type || "").toLowerCase();
-    const hasMimeType = mimeType.length > 0;
-    const isImageMime = mimeType.startsWith("image/");
-    const hasKnownExt = extension in MIME_BY_EXT;
-    const hasKnownMime = mimeType in EXT_BY_MIME;
-    const isValidImage = isImageMime
-      ? (hasKnownMime || hasKnownExt)
-      : (!hasMimeType && hasKnownExt);
-    if (!isValidImage) {
-      results.push(`<span style=\"color:red\">Only image files are allowed (${photo.name || "unnamed file"})</span>`);
-      continue;
-    }
-    const contentType = hasKnownMime
-      ? mimeType
-      : (hasKnownExt ? MIME_BY_EXT[extension] : "");
-    const safeExtension = hasKnownMime
-      ? EXT_BY_MIME[mimeType]
-      : (hasKnownExt ? extension : "");
-    if (!contentType || !safeExtension) {
-      results.push(`<span style=\"color:red\">Unsupported image format (${photo.name || "unnamed file"})</span>`);
-      continue;
-    }
-    let base64 = await new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload = () => res(r.result.split(",")[1]);
-      r.onerror = rej;
-      r.readAsDataURL(photo);
-    });
-    const num = i + 1;
-    const normalizedDate = date.replace(/-/g,'');
-    const fileName = isIncubUpload
-      ? `Incub_${colony}_${normalizedDate}_${incubChoice}_${num}.${safeExtension}`
-      : `${colony}_${type}_${normalizedDate}_${num}.${safeExtension}`;
-    const data = {
-      colony,
-      type,
-      category: isIncubUpload ? CATEGORY_INCUB : CATEGORY_DEFAULT,
-      date,
-      fileName: fileName,
-      file: base64,
-      contentType: contentType
-    };
-    if (isIncubUpload) data.incubType = incubChoice;
-    try {
-      const resp = await fetch(UPLOAD_ENDPOINT, {
-        method: "POST",
-        body: new URLSearchParams(data),
-        headers: { "Accept": "application/json" }
+    <footer id="footer"></footer>
+    <div id="copyright">
+      <ul><li>&copy; Swift Colony Monitoring</li><li>Field data portal</li></ul>
+    </div>
+  </div>
+  <!-- Leaflet & main JS -->
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const SITE_PASSWORD = "vowa8";
+    function showLoginPrompt() {
+      const overlay = document.createElement("div");
+      overlay.className = "site-login-overlay";
+      overlay.innerHTML = `
+        <div class="site-login-card">
+          <h2>Protected site</h2>
+          <label for="sitepw">Enter password to continue:</label>
+          <input id="sitepw" class="site-login-input" type="password" autocomplete="current-password" aria-label="Password">
+          <button id="sitepw-submit" type="button" class="site-login-button">Continue</button>
+          <div id="pwmsg" class="site-login-message"></div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      window.loginGo = function() {
+        const v = (document.getElementById("sitepw").value||"");
+        if(v === SITE_PASSWORD) {
+          overlay.remove();
+          sessionStorage.setItem("_loginsite", "OK");
+        } else {
+          document.getElementById("pwmsg").textContent = "Incorrect password!";
+        }
+      };
+      const passwordInput = document.getElementById("sitepw");
+      passwordInput.focus();
+      passwordInput.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") loginGo();
       });
-      const response = await resp.json();
-      if (response.success) {
-        results.push(`<span style=\"color:green\">Upload succeeded: <a href=\"${response.url}\" target=\"_blank\">${fileName}</a></span>`);
-      } else {
-        results.push(`<span style=\"color:red\">${fileName}: ${response.error || "Upload failed"}</span>`);
-      }
-    } catch (err) {
-      results.push(`<span style=\"color:red\">${fileName}: Upload error: ${err}</span>`);
+      document.getElementById("sitepw-submit").addEventListener("click", loginGo);
     }
-  }
-  msg.innerHTML = results.join("<br>");
-});
-</script>
-<script src="assets/js/jquery.min.js"></script>
-<script src="assets/js/jquery.scrollex.min.js"></script>
-<script src="assets/js/jquery.scrolly.min.js"></script>
-<script src="assets/js/browser.min.js"></script>
-<script src="assets/js/breakpoints.min.js"></script>
-<script src="assets/js/util.js"></script>
-<script src="assets/js/main.js"></script>
+    if(sessionStorage.getItem("_loginsite") !== "OK") showLoginPrompt();
+
+    let colonyMap = null;
+    let colonyMarkerGroup = null;
+    let hasMapResizeListener = false;
+    const MAP_BOUNDS_PADDING = [18, 18];
+    const mapContainer = document.getElementById("map");
+
+    function refreshMapLayout() {
+      if (!colonyMap) return;
+      requestAnimationFrame(() => colonyMap.invalidateSize());
+    }
+
+    function initMapIfNeeded() {
+      if (!mapContainer || colonyMap) return;
+      const map = L.map('map', { center: [47.1, 7.95], zoom: 8 });
+      colonyMap = map;
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CartoDB', maxZoom: 18
+      }).addTo(map);
+      const legend = L.control({ position: 'bottomleft' });
+      legend.onAdd = function() {
+        const d = L.DomUtil.create('div', 'legend');
+        d.innerHTML = `<b>Monitoring categories</b>
+          <div><span class="dot" style="background:#1b5e20"></span> Intensive monitoring</div>
+          <div><span class="dot" style="background:rgb(154,255,154);border:1px solid green"></span> Light monitoring, Vowa</div>
+          <div><span class="dot" style="background:orange"></span> Light monitoring, external</div>
+          <div><span class="dot" style="background:lightgrey;border:0.5px solid #999"></span> Other colonies</div>`;
+        return d;
+      };
+      legend.addTo(map);
+      colonyMarkerGroup = L.featureGroup().addTo(map);
+      function marker(lat, lng, color, fillColor, radius, label) {
+        L.circleMarker([lat, lng], { color, fillColor, fillOpacity: 0.9, radius, weight: 2 })
+          .addTo(colonyMarkerGroup)
+          .bindPopup(label);
+      }
+      // Green – Intensive monitoring
+      marker(47.141620082206416, 7.246590483600935, '#1b5e20', '#2e7d32', 8, 'Biel – Stadtkirche');
+      marker(47.20825118307239, 7.5347757595271885, '#1b5e20', '#2e7d32', 8, 'Solothurn – Bieltor');
+      marker(47.171324813063165, 8.109948909606452, '#1b5e20', '#2e7d32', 8, 'Sursee – Diebenturm');
+      // Vowa light monitoring (light green)
+      marker(47.05558239385242, 8.313739883573797, 'rgb(154,255,154)', 'rgb(154,255,154)', 8, 'Luzern – Hofkirche');
+      marker(47.32632226305706, 8.203265798701887, 'rgb(154,255,154)', 'rgb(154,255,154)', 8, 'Seengen – Ref. Kirche');
+      marker(47.38708793907311, 8.178625298940132, 'rgb(154,255,154)', 'rgb(154,255,154)', 8, 'Lenzburg – KV Schulhaus');
+      marker(47.410706800000, 9.369503500000, 'rgb(154,255,154)', 'rgb(154,255,154)', 8, 'St. Gallen – Sitterviadukt');
+      // Orange (external light monitoring)
+      marker(47.21218956208258, 7.789185510586733, 'darkorange', 'orange', 8, 'Langenthal');
+      marker(47.47339606672302, 8.30787303942517, 'darkorange', 'orange', 8, 'Baden – Stadtturm');
+      marker(47.47287755570178, 8.310833552428296, 'darkorange', 'orange', 8, 'Baden – Landvogteischloss');
+      // Gray (other)
+      [
+        [47.0566,7.6265,'Burgdorf – Ref. Kirche'],
+        [45.832,9.0312,'Chiasso – Colonia APUMEL'],
+        [47.3875, 8.1740,'Lenzburg – KV Schulhaus'],
+        [46.8065,7.1619,'Fribourg – Beauregard'],
+        [46.806,7.1608,'Fribourg – Au'],
+        [46.9481,7.4474,'Bern – Zytglogge'],
+        [47.0502,8.3093,'Luzern – Museggturm'],
+        [47.3769,8.5417,'Zurich – Grossmünster'],
+        [47.3782,8.5372,'Zurich – Fraumünster'],
+        [47.2106, 7.5329,'Solothurn – Baselgate'],
+      ].forEach(([lat,lng,label]) => marker(lat, lng, '#999', 'lightgrey', 4, label));
+
+      if (colonyMarkerGroup.getLayers().length > 0) {
+        map.fitBounds(colonyMarkerGroup.getBounds(), { padding: MAP_BOUNDS_PADDING });
+      }
+      if (!hasMapResizeListener) {
+        window.addEventListener("resize", refreshMapLayout);
+        hasMapResizeListener = true;
+      }
+      refreshMapLayout();
+    }
+
+    function showTab(tabId) {
+      ["tab-map", "tab-upload"].forEach(id => {
+        const tab = document.getElementById(id);
+        tab.classList.remove("active");
+        tab.setAttribute("aria-selected", "false");
+      });
+      ["tabcontent-map", "tabcontent-upload"].forEach(id => {
+        document.getElementById(id).classList.remove("active");
+      });
+      const activeTab = document.getElementById(tabId);
+      activeTab.classList.add("active");
+      activeTab.setAttribute("aria-selected", "true");
+      if (tabId === "tab-map") {
+        document.getElementById("tabcontent-map").classList.add("active");
+        initMapIfNeeded();
+        refreshMapLayout();
+      }
+      if (tabId === "tab-upload")
+        document.getElementById("tabcontent-upload").classList.add("active");
+    }
+    document.querySelectorAll(".tabs .tab").forEach(tab => {
+      tab.addEventListener("click", () => showTab(tab.id));
+    });
+
+    // Set date to today by default
+    const dateInput = document.getElementById("date");
+    if (dateInput) {
+      const today = new Date().toISOString().slice(0, 10);
+      dateInput.value = today;
+    }
+
+    // Google Drive upload integration (multi-photo)
+    const UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwn8A7Nj3Cb3WYjU24swsRDw1DINhv_6MqLrXjEzMaVDl-Mgs9_pbXw95og3fElKNhu/exec';
+    const CATEGORY_INCUB = "Incub";
+    const CATEGORY_DEFAULT = "Default";
+    const MIME_BY_EXT = {
+      jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", gif: "image/gif",
+      bmp: "image/bmp", heic: "image/heic", heif: "image/heif", tif: "image/tiff", tiff: "image/tiff",
+      avif: "image/avif", jp2: "image/jp2", j2k: "image/jp2", dng: "image/x-adobe-dng"
+    };
+    const EXT_BY_MIME = {
+      "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif",
+      "image/bmp": "bmp", "image/heic": "heic", "image/heif": "heif", "image/tiff": "tiff",
+      "image/avif": "avif", "image/jp2": "jp2", "image/x-adobe-dng": "dng"
+    };
+    document.getElementById("uploadForm").addEventListener("submit", async function(e){
+      e.preventDefault();
+      const msg = document.getElementById("uploadMsg");
+      msg.textContent = "Uploading...";
+      const form = e.target;
+      const colony = form.colony.value;
+      const type = form.type.value;
+      const date = form.date.value;
+      const photos = form.photo.files;
+      if (!photos.length) { msg.textContent = "Please select at least one photo file."; return; }
+      let results = [];
+      for (let i = 0; i < photos.length; i++) {
+        const photo = photos[i];
+        const nameMatch = (photo.name || "").match(/\.([a-z][a-z0-9]*)$/i);
+        const extension = nameMatch ? nameMatch[1].toLowerCase() : "";
+        const mimeType = (photo.type || "").toLowerCase();
+        const hasMimeType = mimeType.length > 0;
+        const isImageMime = mimeType.startsWith("image/");
+        const hasKnownExt = extension in MIME_BY_EXT;
+        const hasKnownMime = mimeType in EXT_BY_MIME;
+        const isValidImage = isImageMime
+          ? (hasKnownMime || hasKnownExt)
+          : (!hasMimeType && hasKnownExt);
+        if (!isValidImage) {
+          results.push(`<span style=\"color:red\">Only image files are allowed (${photo.name || "unnamed file"})</span>`);
+          continue;
+        }
+        const contentType = hasKnownMime
+          ? mimeType
+          : (hasKnownExt ? MIME_BY_EXT[extension] : "");
+        const safeExtension = hasKnownMime
+          ? EXT_BY_MIME[mimeType]
+          : (hasKnownExt ? extension : "");
+        if (!contentType || !safeExtension) {
+          results.push(`<span style=\"color:red\">Unsupported image format (${photo.name || "unnamed file"})</span>`);
+          continue;
+        }
+        let base64 = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => res(r.result.split(",")[1]);
+          r.onerror = rej;
+          r.readAsDataURL(photo);
+        });
+        const num = i + 1;
+        const normalizedDate = date.replace(/-/g,'');
+        const fileName =
+          `${colony}_${type}_${normalizedDate}_${num}.${safeExtension}`;
+        const data = {
+          colony,
+          type,
+          category: CATEGORY_DEFAULT,
+          date,
+          fileName: fileName,
+          file: base64,
+          contentType: contentType
+        };
+        try {
+          const resp = await fetch(UPLOAD_ENDPOINT, {
+            method: "POST",
+            body: new URLSearchParams(data),
+            headers: { "Accept": "application/json" }
+          });
+          const response = await resp.json();
+          if (response.success) {
+            results.push(`<span style=\"color:green\">Upload succeeded: <a href=\"${response.url}\" target=\"_blank\">${fileName}</a></span>`);
+          } else {
+            results.push(`<span style=\"color:red\">${fileName}: ${response.error || "Upload failed"}</span>`);
+          }
+        } catch (err) {
+          results.push(`<span style=\"color:red\">${fileName}: Upload error: ${err}</span>`);
+        }
+      }
+      msg.innerHTML = results.join("<br>");
+    });
+  </script>
+  <script src="assets/js/jquery.min.js"></script>
+  <script src="assets/js/jquery.scrollex.min.js"></script>
+  <script src="assets/js/jquery.scrolly.min.js"></script>
+  <script src="assets/js/browser.min.js"></script>
+  <script src="assets/js/breakpoints.min.js"></script>
+  <script src="assets/js/util.js"></script>
+  <script src="assets/js/main.js"></script>
 </body>
 </html>
