@@ -60,6 +60,7 @@
 							<option value="egg-nest">Egg-nest</option>
 							<option value="nestling">Nestling</option>
 							<option value="adults">Adults</option>
+							<option value="egg-size">Egg sizes</option>
 						</select>
 						<br><br>
 						<label><b>Date:</b></label>
@@ -161,7 +162,6 @@ function initMapIfNeeded() {
 			.addTo(colonyMarkerGroup)
 			.bindPopup(label);
 	}
-
 	// Green – Intensive monitoring
 	marker(47.141620082206416, 7.246590483600935, '#1b5e20', '#2e7d32', 8, 'Biel – Stadtkirche');
 	marker(47.20825118307239, 7.5347757595271885, '#1b5e20', '#2e7d32', 8, 'Solothurn – Bieltor');
@@ -172,7 +172,7 @@ function initMapIfNeeded() {
 	marker(47.38708793907311, 8.178625298940132, 'rgb(154,255,154)', 'rgb(154,255,154)', 8, 'Lenzburg – KV Schulhaus');
 	marker(47.410706800000, 9.369503500000, 'rgb(154,255,154)', 'rgb(154,255,154)', 8, 'St. Gallen – Sitterviadukt');
 	// Orange (external light monitoring)
-	marker(47.21218956208258, 7.789185510586733, 'darkorange', 'orange', 8, 'Langenthal – Kunsthaus');
+	marker(47.21218956208258, 7.789185510586733, 'darkorange', 'orange', 8, 'Langenthal');
 	marker(47.47339606672302, 8.30787303942517, 'darkorange', 'orange', 8, 'Baden – Stadtturm');
 	marker(47.47287755570178, 8.310833552428296, 'darkorange', 'orange', 8, 'Baden – Landvogteischloss');
 	// Gray (other)
