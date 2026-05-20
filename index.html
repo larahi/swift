@@ -60,17 +60,7 @@
 							<option value="egg-nest">Egg-nest</option>
 							<option value="nestling">Nestling</option>
 							<option value="adults">Adults</option>
-							<option value="incub">Incub</option>
 						</select>
-						<div id="incubChoiceWrap" style="display:none;">
-							<label><b>Incub Type:</b></label>
-							<select name="incubChoice" id="incubChoice">
-								<option value="egg">Egg</option>
-								<option value="x">x</option>
-								<option value="y">y</option>
-								<option value="z">z</option>
-							</select>
-						</div>
 						<br><br>
 						<label><b>Date:</b></label>
 						<input type="date" name="date" id="date" required>
@@ -103,7 +93,7 @@
 	</div>
 	<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 	<script>
-const SITE_PASSWORD = "vowa123%";
+const SITE_PASSWORD = "vowa8";
 function showLoginPrompt() {
   const overlay = document.createElement("div");
   overlay.className = "site-login-overlay";
@@ -162,7 +152,6 @@ function initMapIfNeeded() {
 			<div><span class="dot" style="background:rgb(154,255,154);border:1px solid green"></span> Light monitoring, Vowa</div>
 			<div><span class="dot" style="background:orange"></span> Light monitoring, external</div>
 			<div><span class="dot" style="background:lightgrey;border:0.5px solid #999"></span> Other colonies</div>
-			<div><span class="dot" style="background:#1976D2"></span> Soundboxes A</div>`;
 		return d;
 	};
 	legend.addTo(map);
@@ -172,14 +161,7 @@ function initMapIfNeeded() {
 			.addTo(colonyMarkerGroup)
 			.bindPopup(label);
 	}
-	// Blue series (Soundbox A)
-	const blue = '#1565C0', blueFill = '#1976D2';
-	marker(47.392540000000, 8.044220000000, blue, blueFill, 8, 'Aarau – Kantonsgebäude');
-	marker(47.207309300000, 7.537933400000, blue, blueFill, 8, 'Solothurn – Schulhaus Kollegium');
-	marker(47.349968900000, 7.903274500000, blue, blueFill, 8, 'Olten – Alternative Bank');
-	marker(47.369726400000, 8.045083100000, blue, blueFill, 8, 'Unterentfelden – Gemeindehaus');
-	marker(47.289786200000, 7.944173500000, blue, blueFill, 8, 'Zofingen – Berufsschule');
-	marker(47.043914700000, 7.541076900000, blue, blueFill, 8, 'Hindelbank – Kirche Hindelbank');
+
 	// Green – Intensive monitoring
 	marker(47.141620082206416, 7.246590483600935, '#1b5e20', '#2e7d32', 8, 'Biel – Stadtkirche');
 	marker(47.20825118307239, 7.5347757595271885, '#1b5e20', '#2e7d32', 8, 'Solothurn – Bieltor');
@@ -190,7 +172,7 @@ function initMapIfNeeded() {
 	marker(47.38708793907311, 8.178625298940132, 'rgb(154,255,154)', 'rgb(154,255,154)', 8, 'Lenzburg – KV Schulhaus');
 	marker(47.410706800000, 9.369503500000, 'rgb(154,255,154)', 'rgb(154,255,154)', 8, 'St. Gallen – Sitterviadukt');
 	// Orange (external light monitoring)
-	marker(47.21218956208258, 7.789185510586733, 'darkorange', 'orange', 8, 'Langenthal');
+	marker(47.21218956208258, 7.789185510586733, 'darkorange', 'orange', 8, 'Langenthal – Kunsthaus');
 	marker(47.47339606672302, 8.30787303942517, 'darkorange', 'orange', 8, 'Baden – Stadtturm');
 	marker(47.47287755570178, 8.310833552428296, 'darkorange', 'orange', 8, 'Baden – Landvogteischloss');
 	// Gray (other)
