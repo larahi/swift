@@ -65,7 +65,7 @@
       <div class="tabcontent active" id="tabcontent-upload" role="tabpanel" aria-labelledby="tab-upload">
         <section class="post">
           <header class="major">
-            <h1>Upload Colony Data Photo</h1>
+            <h1>Upload Field sheet Photo</h1>
             <p>
               Select colony info and photo(s). Files are placed into Google Drive in the correct colony folder, no login required.<br>
               <b>Filenames</b> will be auto-generated using your form inputs and sequential numbers.
@@ -82,7 +82,7 @@
               <option value="HK">Luzern (HK)</option>
               <option value="RK">Seengen (RK)</option>
               <option value="BT">Solothurn (BT)</option>
-              <option value="SV">St Gallen (SV)</option>
+              <option value="SV">St. Gallen (SV)</option>
               <option value="DT">Sursee (DT)</option>
             </select>
             <br><br>
@@ -113,7 +113,7 @@
         <section class="post">
           <header class="major">
             <h1>Swift Colony Map</h1>
-            <p>Interactive map of monitored colonies in Switzerland</p>
+            <p> Map of monitored colonies in Switzerland</p>
           </header>
           <div id="map" style="height: 380px; min-height: 320px;"></div>
         </section>
@@ -183,8 +183,7 @@
         d.innerHTML = `<b>Monitoring categories</b>
           <div><span class="dot" style="background:#1b5e20"></span> Intensive monitoring</div>
           <div><span class="dot" style="background:rgb(154,255,154);border:1px solid green"></span> Light monitoring, Vowa</div>
-          <div><span class="dot" style="background:orange"></span> Light monitoring, external</div>
-          <div><span class="dot" style="background:lightgrey;border:0.5px solid #999"></span> Other colonies</div>`;
+          <div><span class="dot" style="background:orange"></span> Light monitoring, external</div>`;
         return d;
       };
       legend.addTo(map);
