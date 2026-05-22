@@ -100,6 +100,13 @@
             <label for="photo"><b>Photo(s):</b></label>
             <input type="file" name="photo" id="photo" accept="image/*" multiple required />
             <br><br>
+            <label for="teamsWebhook" style="margin-top:0.5em; display:block;">
+              <b>Teams Webhook URL</b> <span style="font-weight:normal;font-size:0.9em;">(optional – paste to also notify a Teams channel)</span>:
+            </label>
+            <input type="url" id="teamsWebhook" name="teamsWebhook"
+                   placeholder="https://outlook.office.com/webhook/…"
+                   style="width:100%;box-sizing:border-box;font-size:0.93em;padding:5px 7px;border:1px solid #ccc;border-radius:5px;" />
+            <br><br>
             <button type="submit">Upload</button>
             <a href="https://drive.google.com/drive/folders/1Ja7ZdS6nWaGLrI_7kuXifEVoXrRqvJ92?usp=drive_link"
                class="popup-action drive-folder-link" target="_blank" rel="noopener noreferrer"
@@ -263,6 +270,9 @@
     }
 
     // Google Drive upload integration (multi-photo)
+    // Teams notifications are sent via the same Apps Script endpoint to avoid browser CORS restrictions.
+    // The Apps Script must handle the optional "teamsWebhookUrl" and "teamsCard" parameters and
+    // forward the card JSON to that URL using UrlFetchApp.fetch().
     const UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwn8A7Nj3Cb3WYjU24swsRDw1DINhv_6MqLrXjEzMaVDl-Mgs9_pbXw95og3fElKNhu/exec';
     const CATEGORY_INCUB = "Incub";
     const CATEGORY_DEFAULT = "Default";
@@ -276,6 +286,36 @@
       "image/bmp": "bmp", "image/heic": "heic", "image/heif": "heif", "image/tiff": "tiff",
       "image/avif": "avif", "image/jp2": "jp2", "image/x-adobe-dng": "dng"
     };
+    const COLONY_LABELS = {
+      LVS:"Baden (LVS)", ST:"Baden (ST)", SK:"Bienne (SK)", KH:"Langenthal (KH)",
+      KVS:"Lenzburg (KVS)", HK:"Luzern (HK)", RK:"Seengen (RK)", BT:"Solothurn (BT)",
+      SV:"St Gallen (SV)", DT:"Sursee (DT)"
+    };
+
+    function buildTeamsCard(colony, type, date, fileName, fileUrl) {
+      return JSON.stringify({
+        "@type": "MessageCard",
+        "@context": "https://schema.org/extensions",
+        "themeColor": "1b5e20",
+        "summary": "New photo uploaded: " + fileName,
+        "sections": [{
+          "activityTitle": "📸 New photo uploaded",
+          "activitySubtitle": (COLONY_LABELS[colony] || colony) + " — " + type + " — " + date,
+          "facts": [
+            { "name": "Colony:", "value": COLONY_LABELS[colony] || colony },
+            { "name": "Type:", "value": type },
+            { "name": "Date:", "value": date },
+            { "name": "File:", "value": fileName }
+          ],
+          "potentialActions": [{
+            "@type": "OpenUri",
+            "name": "View file in Drive",
+            "targets": [{ "os": "default", "uri": fileUrl }]
+          }]
+        }]
+      });
+    }
+
     document.getElementById("uploadForm").addEventListener("submit", async function(e){
       e.preventDefault();
       const msg = document.getElementById("uploadMsg");
@@ -285,6 +325,7 @@
       const type = form.type.value;
       const date = form.date.value;
       const photos = form.photo.files;
+      const teamsWebhookUrl = (form.teamsWebhook ? form.teamsWebhook.value.trim() : "");
       if (!photos.length) { msg.textContent = "Please select at least one photo file."; return; }
       let results = [];
       for (let i = 0; i < photos.length; i++) {
@@ -340,12 +381,33 @@
           });
           const response = await resp.json();
           if (response.success) {
-            results.push(`<span style=\"color:green\">Upload succeeded: <a href=\"${response.url}\" target=\"_blank\">${fileName}</a></span>`);
+            let teamsNote = "";
+            if (teamsWebhookUrl) {
+              const card = buildTeamsCard(colony, type, date, fileName, response.url || "");
+              try {
+                const teamsResp = await fetch(UPLOAD_ENDPOINT, {
+                  method: "POST",
+                  body: new URLSearchParams({ teamsWebhookUrl, teamsCard: card }),
+                  headers: { "Accept": "application/json" }
+                });
+                const teamsResult = await teamsResp.json();
+                if (teamsResp.ok && teamsResult.teamsOk !== false) {
+                  teamsNote = ' <span style="color:#1b5e20">✔ Teams notified</span>';
+                } else {
+                  console.error("Teams notification failed:", teamsResult);
+                  teamsNote = ' <span style="color:orange">(Teams notification failed)</span>';
+                }
+              } catch (teamsErr) {
+                console.error("Teams notification error:", teamsErr);
+                teamsNote = ' <span style="color:orange">(Teams notification failed)</span>';
+              }
+            }
+            results.push(`<span style="color:green">Upload succeeded: <a href="${response.url}" target="_blank">${fileName}</a></span>${teamsNote}`);
           } else {
-            results.push(`<span style=\"color:red\">${fileName}: ${response.error || "Upload failed"}</span>`);
+            results.push(`<span style="color:red">${fileName}: ${response.error || "Upload failed"}</span>`);
           }
         } catch (err) {
-          results.push(`<span style=\"color:red\">${fileName}: Upload error: ${err}</span>`);
+          results.push(`<span style="color:red">${fileName}: Upload error: ${err}</span>`);
         }
       }
       msg.innerHTML = results.join("<br>");
