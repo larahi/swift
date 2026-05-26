@@ -225,18 +225,19 @@
     let colonyMap;
 
     function initColonyMap() {
-      if (colonyMap) return colonyMap;
       const mapElement = document.getElementById("map");
       if (!mapElement || typeof L === "undefined") return null;
-      colonyMap = L.map(mapElement).setView([46.8182, 8.2275], 8);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors"
-      }).addTo(colonyMap);
-      colonyLocations.forEach((location) => {
-        L.marker(location.coords)
-          .addTo(colonyMap)
-          .bindPopup(`<strong>${location.name}</strong><br>${location.code}`);
-      });
+      if (!colonyMap) {
+        colonyMap = L.map(mapElement).setView([46.8182, 8.2275], 8);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap contributors"
+        }).addTo(colonyMap);
+        colonyLocations.forEach((location) => {
+          L.marker(location.coords)
+            .addTo(colonyMap)
+            .bindPopup(`<strong>${location.name}</strong><br>${location.code}`);
+        });
+      }
       return colonyMap;
     }
 
