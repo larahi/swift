@@ -44,6 +44,59 @@
   </style>
 </head>
 <body class="is-preload">
+  <script>
+    const SITE_PASSWORD = "swifty";
+    const SITE_LOGIN_KEY = "swiftSiteLogin";
+
+    function showSiteLogin() {
+      const overlay = document.createElement("div");
+      overlay.className = "site-login-overlay";
+      overlay.innerHTML = `
+        <div class="site-login-card">
+          <h2>Protected site</h2>
+          <p>Enter password to continue:</p>
+          <input id="site-password-input" type="password" class="site-login-input" />
+          <div>
+            <button type="button" class="site-login-button">Enter</button>
+          </div>
+          <div id="site-login-message" class="site-login-message"></div>
+        </div>
+      `;
+
+      const input = overlay.querySelector("#site-password-input");
+      const button = overlay.querySelector(".site-login-button");
+      const message = overlay.querySelector("#site-login-message");
+
+      const verify = () => {
+        const value = (input.value || "").trim();
+        if (value === SITE_PASSWORD) {
+          sessionStorage.setItem(SITE_LOGIN_KEY, "OK");
+          overlay.remove();
+          return;
+        }
+        message.textContent = "Incorrect password.";
+        input.focus();
+        input.select();
+      };
+
+      button.addEventListener("click", verify);
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          verify();
+        }
+      });
+
+      document.body.appendChild(overlay);
+      input.focus();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (sessionStorage.getItem(SITE_LOGIN_KEY) !== "OK") {
+        showSiteLogin();
+      }
+    });
+  </script>
   <div id="wrapper">
     <!-- Header -->
     <header id="header">
@@ -147,6 +200,9 @@
           tab.setAttribute('aria-selected', 'true');
           let content = document.getElementById(tab.getAttribute('aria-controls'));
           if (content) content.classList.add('active');
+          if (tab.id === 'tab-map' && typeof window.showColonyMap === 'function') {
+            window.showColonyMap();
+          }
         });
       });
     });
@@ -154,6 +210,45 @@
   <!-- Leaflet & main JS -->
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    const colonyLocations = [
+      { code: "LVS", name: "Baden (LVS)", coords: [47.4737, 8.3059] },
+      { code: "ST", name: "Baden (ST)", coords: [47.4744, 8.3036] },
+      { code: "SK", name: "Bienne (SK)", coords: [47.1368, 7.2466] },
+      { code: "KH", name: "Langenthal (KH)", coords: [47.2140, 7.7961] },
+      { code: "KVS", name: "Lenzburg (KVS)", coords: [47.3885, 8.1820] },
+      { code: "HK", name: "Luzern (HK)", coords: [47.0502, 8.3093] },
+      { code: "RK", name: "Seengen (RK)", coords: [47.3270, 8.2083] },
+      { code: "BT", name: "Solothurn (BT)", coords: [47.2088, 7.5374] },
+      { code: "SV", name: "St Gallen (SV)", coords: [47.4245, 9.3767] },
+      { code: "DT", name: "Sursee (DT)", coords: [47.1709, 8.1111] }
+    ];
+    let colonyMap;
+
+    function initColonyMap() {
+      const mapElement = document.getElementById("map");
+      if (!mapElement || typeof L === "undefined") return null;
+      if (!colonyMap) {
+        colonyMap = L.map(mapElement).setView([46.8182, 8.2275], 8);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap contributors"
+        }).addTo(colonyMap);
+        colonyLocations.forEach((location) => {
+          L.marker(location.coords)
+            .addTo(colonyMap)
+            .bindPopup(`<strong>${location.name}</strong><br>${location.code}`);
+        });
+      }
+      return colonyMap;
+    }
+
+    window.showColonyMap = function() {
+      const mapInstance = initColonyMap();
+      if (!mapInstance) return;
+      window.requestAnimationFrame(() => {
+        mapInstance.invalidateSize();
+      });
+    };
+
     // Data Type & Colony Picker show/hide logic
     document.getElementById('type').addEventListener('change', function() {
       var colonyGroup = document.getElementById('colony-group');
@@ -174,6 +269,13 @@
       const today = new Date().toISOString().slice(0, 10);
       dateInput.value = today;
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const mapTab = document.getElementById("tab-map");
+      if (mapTab && mapTab.getAttribute("aria-selected") === "true") {
+        window.showColonyMap();
+      }
+    });
 
     // Google Drive upload integration (multi-photo)
     const UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwlypDk0N3QF3Ml4JL5nnG7KuixnVIwB0g3pca_KAWXGTEg_AE4DSG973HgZKkByyUo/exec';
