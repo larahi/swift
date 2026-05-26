@@ -128,6 +128,29 @@
       <ul><li>&copy; Swift Colony Monitoring</li><li>Field data portal</li></ul>
     </div>
   </div>
+  <!-- Tab Switch Script (FIX) -->
+  <script>
+    // Tab navigation logic
+    document.addEventListener("DOMContentLoaded", function() {
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+          // Remove active from all tabs and tabpanels
+          document.querySelectorAll('.tab').forEach(t => {
+            t.classList.remove('active');
+            t.setAttribute('aria-selected', 'false');
+          });
+          document.querySelectorAll('.tabcontent').forEach(tc => {
+            tc.classList.remove('active');
+          });
+          // Activate clicked tab and associated panel
+          tab.classList.add('active');
+          tab.setAttribute('aria-selected', 'true');
+          let content = document.getElementById(tab.getAttribute('aria-controls'));
+          if (content) content.classList.add('active');
+        });
+      });
+    });
+  </script>
   <!-- Leaflet & main JS -->
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
