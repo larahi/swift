@@ -243,9 +243,9 @@
     window.showColonyMap = function() {
       const mapInstance = initColonyMap();
       if (!mapInstance) return;
-      window.setTimeout(() => {
+      window.requestAnimationFrame(() => {
         mapInstance.invalidateSize();
-      }, 0);
+      });
     };
 
     // Data Type & Colony Picker show/hide logic
