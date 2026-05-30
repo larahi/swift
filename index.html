@@ -150,12 +150,15 @@
                 <option value="DT">Sursee (DT)</option>
               </select>
             </div>
+            <!-- 3. Page number only for egg-size -->
+            <div id="page-number-group" style="display:none;">
+              <br>
+              <label for="pagenr"><b>Page:</b></label>
+              <input type="number" name="pagenumber" id="pagenr" />
+            </div>
             <br><br>
             <label for="date"><b>Date:</b></label>
             <input type="date" name="date" id="date" required />
-            <br><br>
-            <label for="pagenr"><b>Page:</b></label>
-            <input type="number" name="pagenumber" id="pagenr" />
             <br><br>
             <label for="photo"><b>Photo(s):</b></label>
             <input type="file" name="photo" id="photo" accept="image/*" multiple required />
@@ -255,12 +258,20 @@
     // Data Type & Colony Picker show/hide logic
     document.getElementById('type').addEventListener('change', function() {
       var colonyGroup = document.getElementById('colony-group');
+      var pageNumberGroup = document.getElementById('page-number-group');
+      
       if (this.value === 'sampling-list') {
         colonyGroup.style.display = 'none';
         document.getElementById('colony').required = false;
       } else {
         colonyGroup.style.display = '';
         document.getElementById('colony').required = true;
+      }
+      
+      if (this.value === 'egg-size') {
+        pageNumberGroup.style.display = '';
+      } else {
+        pageNumberGroup.style.display = 'none';
       }
     });
     // On page load: ensure correct state
@@ -300,7 +311,9 @@
       const form = e.target;
       const type = form.type.value;
       const isSamplingList = (type === "sampling-list");
+      const isEggSize = (type === "egg-size");
       const colony = !isSamplingList && form.colony ? form.colony.value : "";
+      const pageNumber = isEggSize && form.pagenumber ? form.pagenumber.value : "";
       const date = form.date.value;
       const photos = form.photo.files;
       if (!photos.length) { msg.textContent = "Please select at least one photo file."; return; }
@@ -341,8 +354,13 @@
           fileName = `sampling-list_${normalizedDate}_${num}.${safeExtension}`;
           data.fileName = fileName;
           // Don't send "colony"
+        } else if (isEggSize && pageNumber) {
+          fileName = `${colony}_${type}_${normalizedDate}_p${pageNumber}_${num}.${safeExtension}`;
+          data.colony = colony;
+          data.pagenumber = pageNumber;
+          data.fileName = fileName;
         } else {
-          fileName = `${colony}_${type}_${normalizedDate}_${pagenr}_${num}.${safeExtension}`;
+          fileName = `${colony}_${type}_${normalizedDate}_${num}.${safeExtension}`;
           data.colony = colony;
           data.fileName = fileName;
         }
