@@ -128,10 +128,9 @@
             <label for="type"><b>Data Type:</b></label>
             <select name="type" id="type" required>
               <option value="egg-nest">Egg-nest</option>
-              <option value="nestling">Nestlings</option>
-              <option value="adults">Adults</option>
-              <option value="sampling-list">Sampling list</option>
               <option value="egg-size">Egg sizes</option>
+              <option value="nestling">Nestlings</option>
+              <option value="sampling-list">Sampling list</option>
             </select>
             <!-- 2. Colony selection only for non-sampling-list -->
             <div id="colony-group">
@@ -143,7 +142,8 @@
                 <option value="SK">Bienne (SK)</option>
                 <option value="KH">Langenthal (KH)</option>
                 <option value="KVS">Lenzburg (KVS)</option>
-                <option value="HK">Luzern (HK)</option>
+                <option value="HKN">Luzern - North (HKN)</option>
+                <option value="HKS">Luzern - South(HKS)</option>
                 <option value="RK">Seengen (RK)</option>
                 <option value="BT">Solothurn (BT)</option>
                 <option value="SV">St Gallen (SV)</option>
@@ -153,6 +153,9 @@
             <br><br>
             <label for="date"><b>Date:</b></label>
             <input type="date" name="date" id="date" required />
+            <br><br>
+            <label for="pagenr"><b>Page:</b></label>
+            <input type="number" name="pagenumber" id="pagenr" />
             <br><br>
             <label for="photo"><b>Photo(s):</b></label>
             <input type="file" name="photo" id="photo" accept="image/*" multiple required />
@@ -339,7 +342,7 @@
           data.fileName = fileName;
           // Don't send "colony"
         } else {
-          fileName = `${colony}_${type}_${normalizedDate}_${num}.${safeExtension}`;
+          fileName = `${colony}_${type}_${normalizedDate}_${pagenr}_${num}.${safeExtension}`;
           data.colony = colony;
           data.fileName = fileName;
         }
